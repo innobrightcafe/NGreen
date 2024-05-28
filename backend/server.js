@@ -20,6 +20,9 @@ app.use((err, req, res, next) => {
     res.status(500).json({ status: 'Something broke!' });
 });
 
+
+
+module.exports = app;
 app.listen(port, () => {
     console.log('welcome to NGREEN, YOur ultimate Rider server')
 })
