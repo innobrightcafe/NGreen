@@ -1,11 +1,15 @@
 const express = require('express');
 const dotenv = require('dotenv').config();
 const app = express();
+const connectDB = require('./utils/db.js')
 const port = process.env.PORT || 5000
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.json())
+
+connectDB();
 
 
 app.get('/', (req, res) => {
@@ -13,6 +17,13 @@ app.get('/', (req, res) => {
 })
 app.get('/status', (req, res) => {
     res.json({ 'status': 'success' })
+})
+app.get('/database', (req, res) => {
+    if (mongoose.connection.readyState === 0) {
+        res.json({'status': 'Database is up and running'})
+    } else {
+        res.json({'status': 'Database is down'})
+    }
 })
 
 app.use((err, req, res, next) => {
