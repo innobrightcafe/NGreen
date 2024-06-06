@@ -10,3 +10,12 @@ describe('GET /', () => {
   });
 });
 
+describe('GET /database', () => {
+  it('Database Status testing', async () => {
+    const response = await request(app).get('/database')
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({ 'status': 'Database is up and running' });
+  });
+});
+
