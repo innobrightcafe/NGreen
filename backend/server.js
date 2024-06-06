@@ -19,11 +19,10 @@ app.get('/status', (req, res) => {
     res.json({ 'status': 'success' })
 })
 app.get('/database', (req, res) => {
-    if (mongoose.connection.readyState === 0) {
-        res.json({'status': 'Database is up and running'})
-    } else {
-        res.json({'status': 'Database is down'})
-    }
+    mongoose.connection.on('error', (err) => {
+        return res.json({ 'status': `Database is down with wrror: ${err}` });
+    });
+    return res.json({ 'status': 'Database is up and running' })
 })
 
 app.use((err, req, res, next) => {
