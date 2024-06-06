@@ -10,7 +10,7 @@ const createUser = expressAsyncHandler(async (req, res) => {
     }
     const password = req.body.password
     const hashpassword = await hashPassword(password);
-    const user = await User.create({ fname: req.body.fname, lname: req.body.lname, password: hashpassword, refer: 0, pnumber: req.body.pnumber, type: 'user', email: req.body.email, isSeller: 0 });
+    const user = await User.create({ fname: req.body.fname, lname: req.body.lname, password: hashpassword, refer: 0, pnumber: req.body.pnumber, type: 'user', email: req.body.email});
     res.status(201).json(format(user));
 });
 
@@ -34,8 +34,7 @@ const getUser = expressAsyncHandler(async (req, res) => {
 const updateUser = expressAsyncHandler(async (req, res) => {
     const user = await User.findOne({ _id: req.params.id, type: 'user' });
     if (!user) {
-        res.status(404).json({ "error": "User not found" });
-        return;
+        return res.status(404).json({ "error": "User not found" });
     }
     const updatedItems = {};
     if (req.body.email) {

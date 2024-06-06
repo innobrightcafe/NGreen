@@ -32,6 +32,7 @@ app.get('/database', (req, res) => {
 })
 
 app.use('/users', require('./controllers/users/user.js'))
+app.use('/admins', require('./controllers/admin/admin.js'))
 
 app.all('*', (req, res)=> {
     res.status(400).json({'error': 'Not Found'})
