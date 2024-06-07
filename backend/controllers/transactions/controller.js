@@ -2,6 +2,7 @@ const expressAsyncHandler = require('express-async-handler')
 const User = require('../../models/userModel')
 const Wallet = require('../../models/walletModel')
 const Transaction = require('../../models/transactionModel')
+const logger = require('../../utils/logger')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('../../utils/formatter.js')
 
 
@@ -10,9 +11,10 @@ const createTransaction = expressAsyncHandler(async (req, res) => {
     let user = await User.findById(user_id)
     user = format(user)
     let wallet = await Wallet.findOne({ number, user_id })
-    if (user.type != 'admin' || !wallet) {
+    if (user.type !== 'admin' || !wallet) {
         return res.status(400).json({'status': 'Error! You have no permision to make this transaction'})
     }
+    logger.info(`User ${user.email} is making a transaction ${type} of ${amount} with wallet number ${number}`)
     const description = req.body.description || ''
     wallet = format(wallet)
     let status = "pending"
@@ -30,4 +32,15 @@ const createTransaction = expressAsyncHandler(async (req, res) => {
     return res.status(200).json(format(trans));    
 })
 
-module.exports = { createTransaction }
+const getTransactions = expressAsyncHandler(async (req, res) => {
+    let transactions = await Transaction.find()
+    transactions = transactions.map(transaction => format(transaction))
+    return res.status(200).json(transactions)
+})
+
+const getTransaction = expressAsyncHandler(async (req, res) => {
+    const transaction = await Transaction.findById(req.params.id)
+    return res.status(200).json(format(transaction))
+})
+
+module.exports = { createTransaction, getTransactions, getTransaction}

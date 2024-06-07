@@ -38,7 +38,7 @@ const getAdmin = expressAsyncHandler(async (req, res) => {
     if (!admin) {
         return res.status(404).json({ "error": "Admin not found" });
     }
-    return res.status(200).json(format(Admin));
+    return res.status(200).json(format(admin));
 });
 
 const updateAdmin = expressAsyncHandler(async (req, res) => {

@@ -1,6 +1,6 @@
-const router = require('express').Router
+const router = require('express').Router()
 const expressAsyncHandler = require('express-async-handler');
-const { createTransaction  } = require('./controller')
+const { createTransaction, getTransaction, getTransactions  } = require('./controller')
 const { body, validationResult } = require('express-validator');
 
 
@@ -14,7 +14,7 @@ const validateTransaction = [
     body('amount')
         .isDecimal({ decimal_digits: '0,2' }).withMessage('Amount must be a decimal number with up to two decimal places')
         .isFloat({ gt: 0 }).withMessage('Amount must be greater than 0'),
-    body('transaction_type')
+    body('type')
         .isIn(['credit', 'debit']).withMessage('Transaction type must be either credit or debit')
 ];
 
@@ -26,7 +26,8 @@ const handleValidation = expressAsyncHandler(async (req, res, next) => {
     next();
 });
 
-router.post(validateTransaction, handleValidation, createTransaction)
+router.route('/').post(validateTransaction, handleValidation, createTransaction).get(getTransactions)
+router.route('/:id').get(getTransaction)
 
 
 module.exports = router;
