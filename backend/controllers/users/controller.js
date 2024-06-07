@@ -2,6 +2,7 @@ const expressAsyncHandler = require('express-async-handler');
 const User = require('../.../../../models/userModel.js');
 const { hashPassword, comparePassword } = require('../../utils/password.js')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('../../utils/formatter.js')
+const Wallet = require('../../models/walletModel.js');
 
 const createUser = expressAsyncHandler(async (req, res) => {
     const exist = await User.findOne({ email: req.body.email })
@@ -11,7 +12,13 @@ const createUser = expressAsyncHandler(async (req, res) => {
     const password = req.body.password
     const hashpassword = await hashPassword(password);
     const user = await User.create({ fname: req.body.fname, lname: req.body.lname, password: hashpassword, refer: 0, pnumber: req.body.pnumber, type: 'user', email: req.body.email});
-    res.status(201).json(format(user));
+    const newUser = format(user);
+    const user_id = newUser.id;
+    const number = Math.floor(Math.random() * 1000000000);
+    const balance = 0.0;
+    const wallet = await Wallet.create({ user_id, number, balance });
+    newUser.wallet_number = format(wallet).number;
+    res.status(201).json(newUser);
 });
 
 const getUsers = expressAsyncHandler(async (req, res) => {
