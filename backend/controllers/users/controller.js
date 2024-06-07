@@ -18,7 +18,7 @@ const createUser = expressAsyncHandler(async (req, res) => {
     const balance = 0.0;
     const wallet = await Wallet.create({ user_id, number, balance });
     newUser.wallet_number = format(wallet).number;
-    res.status(201).json(newUser);
+    return res.status(201).json(newUser);
 });
 
 const getUsers = expressAsyncHandler(async (req, res) => {
@@ -52,9 +52,7 @@ const updateUser = expressAsyncHandler(async (req, res) => {
         }
     }
     if (req.body.password) {
-        const pass = req.body.password;
-        const hashpassword = await hashPassword(pass);
-        updatedItems.password = hashpassword;
+        updatedItems.password = await hashPassword(req.body.password);
     }
     if (req.body.pnumber) {
         updatedItems.pnumber = req.body.pnumber

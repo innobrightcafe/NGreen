@@ -1,6 +1,7 @@
 const expressAsyncHandler = require('express-async-handler');
 const Admin = require('../.../../../models/userModel.js');
 const { hashPassword, comparePassword } = require('../../utils/password.js')
+const Wallet = require('../../models/walletModel.js');
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('../../utils/formatter.js')
 
 const createAdmin = expressAsyncHandler(async (req, res) => {
@@ -10,8 +11,17 @@ const createAdmin = expressAsyncHandler(async (req, res) => {
     }
     const password = req.body.password
     const hashpassword = await hashPassword(password);
-    const admin = await Admin.create({ fname: req.body.fname, lname: req.body.lname, password: hashpassword, refer: 0, pnumber: req.body.pnumber, type: 'admin', email: req.body.email});
-    res.status(201).json(format(admin));
+    const admin = await Admin.create({ fname: req.body.fname, lname: req.body.lname, password: hashpassword, refer: 0, pnumber: req.body.pnumber, type: 'admin', email: req.body.email });
+    const newUser = format(admin);
+    const user_id = newUser.id;
+    const number = 987654321;
+    const wal = await Wallet.findOne({ number });
+    if (!wal) {
+        const balance = 0.0;
+        await Wallet.create({ user_id, number, balance });
+    }
+    newUser.wallet_number = number;
+    return res.status(201).json(newUser);
 });
 
 const getAdmins = expressAsyncHandler(async (req, res) => {
@@ -45,9 +55,7 @@ const updateAdmin = expressAsyncHandler(async (req, res) => {
         }
     }
     if (req.body.password) {
-        const pass = req.body.password;
-        const hashpassword = await hashPassword(pass);
-        updatedItems.password = hashpassword;
+        updatedItems.password = await hashPassword(req.body.password);;
     }
     if (req.body.pnumber) {
         updatedItems.pnumber = req.body.pnumber
@@ -59,7 +67,7 @@ const updateAdmin = expressAsyncHandler(async (req, res) => {
         updatedItems.pnumber = req.body.lname
     }
     await Admin.findByIdAndUpdate(req.params.id, { $set: updatedItems }, { new: true })
-    const newAdmin = await Admin.findOne({ _id: req.params.id, type: 'admin'});
+    const newAdmin = await Admin.findOne({ _id: req.params.id, type: 'admin' });
     return res.status(200).json(format(newAdmin));
 });
 
