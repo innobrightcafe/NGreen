@@ -6,6 +6,7 @@ const port = process.env.PORT || 3000
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
+require('./utils/scheduler.js')
 
 const corsOptions = {
     origin: '*',
