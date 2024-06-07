@@ -34,6 +34,7 @@ app.get('/database', (req, res) => {
 app.use('/users', require('./controllers/users/user.js'))
 app.use('/admins', require('./controllers/admin/admin.js'))
 app.use('/wallets', require('./controllers/wallets/wallet.js'))
+app.use('/transactions', require('./controllers/transactions/transaction.js'))
 
 app.all('*', (req, res)=> {
     res.status(400).json({'error': 'Not Found'})
