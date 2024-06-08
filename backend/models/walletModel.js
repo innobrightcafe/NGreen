@@ -1,10 +1,10 @@
 const mongoose = require('mongoose');
-const User = require('./userModel.js');
+// const User = require('./userModel.js');
+// const Carrier = require('./carrierModel.js')
 
 const walletSchema = new mongoose.Schema({
     user_id: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: User
+        type: mongoose.Schema.Types.ObjectId
     },
     number: {
         type: Number,

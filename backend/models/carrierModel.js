@@ -5,6 +5,11 @@ const Wallet = require('./walletModel.js')
 const carrierSchema = new mongoose.Schema({
     fname: String,
     lname: String,
+    email: String,
+    password: String,
+    account_name: String,
+    account_number: Number,
+    account_bank: String,
     agent_id: {
         type: mongoose.Schema.Types.ObjectId,
     },
