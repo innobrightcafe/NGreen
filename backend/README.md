@@ -23,7 +23,8 @@ node - v18.1.0
    ```
    PORT = 5000
    MONGO_URI = 
-   SECRET_KEY = 
+   SECRET_KEY =
+   ADMiN_ID=
    ```
 
 ## Running the Server

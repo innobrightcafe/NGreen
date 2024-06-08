@@ -37,6 +37,7 @@ app.use('/admins', require('./controllers/admin/admin.js'))
 app.use('/wallets', require('./controllers/wallets/wallet.js'))
 app.use('/transactions', require('./controllers/transactions/transaction.js'))
 app.use('/carriers', require('./controllers/carriers/carrier.js'))
+app.use('/orders', require('./controllers/orders/order.js'))
 
 app.all('*', (req, res)=> {
     res.status(400).json({'error': 'Not Found'})

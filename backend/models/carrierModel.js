@@ -17,6 +17,7 @@ const carrierSchema = new mongoose.Schema({
     approved: Boolean,
     rating: {
         type: Number,
+        default: 0.0
     },
     address: String,
     refer: Number,
