@@ -1,6 +1,7 @@
 const expressAsyncHandler = require('express-async-handler')
 const Wallet = require('../../models/walletModel')
 const User = require('../../models/userModel')
+const Carrier = require('../../models/carrierModel')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('../../utils/formatter.js')
 
 const createWallet = expressAsyncHandler(async (req, res) => {
@@ -9,8 +10,9 @@ const createWallet = expressAsyncHandler(async (req, res) => {
         return res.status(400).json({ message: 'user_id is required' })
     }
     const user = await User.findById(user_id);
-    if (!user) {
-        return res.status(404).json({ message: 'User not found' })
+    const carrier = await Carrier.findById(user_id);
+    if (!user && !carrier) {
+        return res.status(404).json({ message: 'User or Carrier not found' })
     }
     const number = Math.floor(Math.random() * 1000000000)
     const balance = 0.0

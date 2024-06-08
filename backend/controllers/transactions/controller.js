@@ -2,16 +2,18 @@ const expressAsyncHandler = require('express-async-handler')
 const User = require('../../models/userModel')
 const Wallet = require('../../models/walletModel')
 const Transaction = require('../../models/transactionModel')
+const Carrier = require('../../models/carrierModel')
 const logger = require('../../utils/logger')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('../../utils/formatter.js')
 
 
 const createTransaction = expressAsyncHandler(async (req, res) => {
-    const { user_id, type, amount, number, } = req.body
+    const { user_id, type, amount, number } = req.body
     let user = await User.findById(user_id)
+    const carrier = await Carrier.findById(user_id)
     user = format(user)
     let wallet = await Wallet.findOne({ number, user_id })
-    if (user.type !== 'admin' || !wallet) {
+    if (user.type !== 'admin' || (!carrier && !wallet)) {
         return res.status(400).json({'status': 'Error! You have no permision to make this transaction'})
     }
     logger.info(`User ${user.email} is making a transaction ${type} of ${amount} with wallet number ${number}`)
@@ -43,4 +45,30 @@ const getTransaction = expressAsyncHandler(async (req, res) => {
     return res.status(200).json(format(transaction))
 })
 
-module.exports = { createTransaction, getTransactions, getTransaction}
+const approveTransaction = expressAsyncHandler(async (req, res) => {
+    const { user_id  } = req.body
+    let transaction = await Transaction.findOne({ _id: req.params.id });
+    if (!transaction) {
+        return res.status(404).json({ "error": "Transaction not found" });
+    }
+    transaction = format(transaction)
+    let user = await User.findById(user_id)
+    user = format(user)
+    let wallet = Wallet.findOne({ number: transaction.number })
+    if (!wallet) {
+        res.status(404).json({'status': 'Error! Wallet not found'})
+    }
+    if (user.type !== 'admin' ) {
+        return res.status(400).json({'status': 'Error! You have no permision to approve this transaction'})
+    }
+    const newWallet = {balance: wallet.balance}
+    const updatedItems = {};
+    updatedItems.status = "completed"
+    newWallet.balance -= transaction.amount
+    await Carrier.findByIdAndUpdate(req.params.id, { $set: updatedItems }, { new: true })
+    const newTrans = await Transaction.findOne({ _id: req.params.id });
+    await Wallet.findByIdAndUpdate(wallet.id, { $set: newWallet }, { new: true })
+    return res.status(200).json(format(newTrans));
+})
+
+module.exports = { createTransaction, getTransactions, getTransaction, approveTransaction  }

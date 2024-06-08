@@ -1,6 +1,6 @@
 const router = require('express').Router()
 const expressAsyncHandler = require('express-async-handler');
-const { createTransaction, getTransaction, getTransactions  } = require('./controller')
+const { createTransaction, getTransaction, getTransactions, approveTransaction  } = require('./controller')
 const { body, validationResult } = require('express-validator');
 
 
@@ -28,6 +28,7 @@ const handleValidation = expressAsyncHandler(async (req, res, next) => {
 
 router.route('/').post(validateTransaction, handleValidation, createTransaction).get(getTransactions)
 router.route('/:id').get(getTransaction)
+router.route('/:id/approve').put(approveTransaction)
 
 
 module.exports = router;
