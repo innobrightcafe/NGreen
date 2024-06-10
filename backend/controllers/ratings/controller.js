@@ -31,7 +31,7 @@ const createRating = expressAsyncHandler( async(req,res)=> {
 })
 
 const getRatings = expressAsyncHandler( async (req, res) => {
-    let ratings = await Rating.find()
+    let ratings = await Rating.find().sort({createdAt: -1});
     ratings = ratings.map( rating => format(rating));
     return res.status(200).json(ratings)
 })

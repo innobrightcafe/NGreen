@@ -3,7 +3,7 @@ const User = require('./userModel.js');
 const Carrier = require('./carrierModel.js')
 const Order = require('./orderModel.js')
 
-const carrierSchema = new mongoose.Schema({
+const otpSchema = new mongoose.Schema({
     user_id: {
         type: mongoose.Schema.Types.ObjectId,
         ref: User
@@ -19,4 +19,4 @@ const carrierSchema = new mongoose.Schema({
     otp: String
 }, { timestamps: true })
 
-module.exports = mongoose.model('Carrier', carrierSchema)
+module.exports = mongoose.model('Otp', otpSchema)
