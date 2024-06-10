@@ -2,16 +2,21 @@ const expressAsyncHandler = require('express-async-handler')
 const User = require('../../models/userModel')
 const Carrier = require('../../models/carrierModel')
 const Rating = require('../../models/rateModel.js')
+const Order = require('../../models/orderModel.js')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('../../utils/formatter.js')
 
 
 const createRating = expressAsyncHandler( async(req,res)=> {
     const user = format(await User.findById(req.body.user_id))
-    if(!req.body.rating) {
-        return res.status(400).json({"error": "rating id needed"})
-    }
     if (!user.id) {
         return res.status(400).json({"error": "User not found"})
+    }
+    const order = format(await Order.findById(req.body.order_id))
+    if(!order.id) {
+        return res.status(400).json({"error": " Order not found"})
+    }
+    if(!req.body.rating) {
+        return res.status(400).json({"error": "rating must be in the request body"})
     }
     const carrier = format(await Carrier.findById(req.body.carier_id))
     if(!carrier.id){
@@ -21,7 +26,7 @@ const createRating = expressAsyncHandler( async(req,res)=> {
     const len = ratings.length;
     const newRating = (carrier.rating * len + req.body.rating)/(len + 1)
     await Carrier.findByIdAndUpdate(carrier.id, { $set: {rating: newRating} }, { new: true })
-    const rating = Rating.create({ user_id: req.body.user_id, carrier_id: req.body.carrier_id, rating: req.body.rating})
+    const rating = Rating.create({ user_id: req.body.user_id, order_id:req.body.order_id, carrier_id: req.body.carrier_id, rating: req.body.rating})
     return res.status(201).json(format(rating))
 })
 
@@ -47,12 +52,13 @@ const updateRating = expressAsyncHandler( async(req, res) => {
     if(!req.body.rating) {
         return res.status(400).json({"error": "rating id needed"})
     }
+    const carrier = format(await Carrier.findById(rating.carrier_id))
     const ratings = await Rating.find({carrier_id: rating.carrier_id});
     const len = ratings.length;
     const newRating = (carrier.rating * len + req.body.rating - rating.rating)/(len)
     await Carrier.findByIdAndUpdate(rating.carrier_id, { $set: {rating: newRating} }, { new: true })
     await Rating.findByIdAndUpdate(rating.id, { $set: {rating: req.body.rating} }, { new: true })
-    const rate = Ratinf.findById(freq.params.id)
+    const rate = Rating.findById(req.params.id)
     return res.status(201).json(format(rate))
 })
 
