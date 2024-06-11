@@ -8,13 +8,23 @@ const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = 
 
 
 const createTransaction = expressAsyncHandler(async (req, res) => {
-    const { user_id, type, amount, number } = req.body
-    let user = await User.findById(user_id)
-    const carrier = await Carrier.findById(user_id)
-    user = format(user)
-    let wallet = await Wallet.findOne({ number, user_id })
-    if (user.type !== 'admin' || (!carrier && !wallet)) {
-        return res.status(400).json({'status': 'Error! You have no permision to make this transaction'})
+    const {  type, amount, number } = req.body
+    const user_id = req.user_id 
+    let user = ''
+    if (req.user_type == 'carrier') {
+        user = format(await Carrier.findById(req.user_id))
+        if (!user.id) {
+            return res.status(400).json({'status': 'Error! You have no permision to make this transaction'})
+        }
+    } else {
+        user = format(await User.findById(req.user_id))
+        if (!user.id) {
+            return res.status(400).json({'status': 'Error! You have no permision to make this transaction'})
+        }
+    }
+    let wallet = format(await Wallet.findOne({ number, user_id }))
+    if (!wallet.id) {
+        return res.status(400).json({'status': 'Error! Cannot find my wallet'})
     }
     logger.info(`User ${user.email} is making a transaction ${type} of ${amount} with wallet number ${number}`)
     const description = req.body.description || ''
