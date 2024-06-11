@@ -5,6 +5,7 @@ const connectDB = require('./utils/db.js')
 const port = process.env.PORT || 3000
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const { AuthenticateUser, verifyUser, AuthenticateCarrier, verifyCarrier, verifyAdmin, verifyCarrierUserAndAdmin } = require('./utils/auth.js')
 const cors = require('cors');
 require('./utils/scheduler.js')
 
@@ -27,13 +28,16 @@ app.get('/status', (req, res) => {
 })
 app.get('/database', (req, res) => {
     mongoose.connection.on('error', (err) => {
-        return res.json({ 'status': `Database is down with wrror: ${err}` });
+        return res.json({ 'status': `Database is down with error: ${err}` });
     });
     return res.json({ 'status': 'Database is up and running' })
 })
 
-app.use('/users', require('./controllers/users/user.js'))
-app.use('/admins', require('./controllers/admin/admin.js'))
+app.post('/auth/users', AuthenticateUser)
+app.post('/auth/carriers', AuthenticateCarrier)
+app.use('/admins', verifyAdmin ,require('./controllers/admin/admin.js'))
+
+app.use('/users', verifyUser ,require('./controllers/users/user.js'))
 app.use('/wallets', require('./controllers/wallets/wallet.js'))
 app.use('/transactions', require('./controllers/transactions/transaction.js'))
 app.use('/carriers', require('./controllers/carriers/carrier.js'))
