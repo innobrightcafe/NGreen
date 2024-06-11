@@ -5,6 +5,7 @@ const connectDB = require('./utils/db.js')
 const port = process.env.PORT || 3000
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const { AuthenticateUser, verifyUser, AuthenticateCarrier, verifyCarrier, verifyAdmin } = require('./utils/auth.js')
 const cors = require('cors');
 require('./utils/scheduler.js')
 
@@ -31,6 +32,9 @@ app.get('/database', (req, res) => {
     });
     return res.json({ 'status': 'Database is up and running' })
 })
+
+app.post('/auth/users', AuthenticateUser)
+app.post('/auth/carriers', AuthenticateCarrier)
 
 app.use('/users', require('./controllers/users/user.js'))
 app.use('/admins', require('./controllers/admin/admin.js'))
