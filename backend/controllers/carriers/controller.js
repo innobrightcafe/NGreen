@@ -54,9 +54,12 @@ const getCarrier = expressAsyncHandler(async (req, res) => {
 });
 
 const updateCarrier = expressAsyncHandler(async (req, res) => {
-    const carrier = await Carrier.findOne({ _id: req.params.id });
+    const carrier = await Carrier.findOne({ _id: req.user_id });
     if (!carrier) {
         return res.status(404).json({ "error": "Carrier not found" });
+    }
+    if (req.user_type !== 'admin' || !carrier) {
+        return res.status(403).json({ "error": "You are not allowed to perform this transaction" });
     }
     const updatedItems = {};
     if (req.body.email) {

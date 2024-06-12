@@ -1,13 +1,11 @@
 const router = require('express').Router()
 const expressAsyncHandler = require('express-async-handler');
 const { createRating, getRating, getRatings, updateRating } = require('./controller')
+const { AuthenticateUser, verifyUser, AuthenticateCarrier, verifyCarrier, verifyCarrierAndAdmin, verifyAdmin, verifyCarrierUserAndAdmin } = require('../../utils/auth')
 const { body, validationResult } = require('express-validator');
 
 
 const validateRate = [
-    body('user_id')
-        .isString().withMessage('User ID must be a string')
-        .notEmpty().withMessage('User ID is required'),
     body('carrier_id')
         .isString().withMessage('Carrier ID must be a string')
         .notEmpty().withMessage('Carrier ID is required'),
@@ -28,9 +26,8 @@ const handleValidation = expressAsyncHandler(async (req, res, next) => {
     next();
 });
 
-router.route('/').post(validateRate, handleValidation, createRating).get(getRatings)
-router.route('/:id').get(getRating).put(updateRating);
-// router.route('/:id/approve').put(approveRating)
+router.route('/').post(verifyUser, validateRate, handleValidation, createRating).get(verifyCarrierUserAndAdmin, getRatings)
+router.route('/:id').get(verifyCarrierUserAndAdmin, getRating).put(verifyUser, updateRating);
 
 
 module.exports = router;

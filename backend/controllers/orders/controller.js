@@ -9,7 +9,8 @@ const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = 
 
 
 const createOrder = expressAsyncHandler(async (req, res) => {
-    const { user_id, amount } = req.body
+    const { amount } = req.body
+    const user_id = req.user_id
     const user = format(await User.findById(user_id))
     if (!user.id) {
         return res.status(404).json({ message: 'User not found' })
@@ -44,7 +45,8 @@ const getOrder = expressAsyncHandler(async (req, res) => {
 })
 
 const updateOrder = expressAsyncHandler(async (req, res) => {
-    const user = format(await User.findById(req.body.user_id))
+    const user_id = req.user_id
+    const user = format(await User.findById(user_id))
     if (!user.id) {
         return res.status(404).json({ message: 'User not found' })
     }

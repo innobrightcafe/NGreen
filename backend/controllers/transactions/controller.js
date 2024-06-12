@@ -56,20 +56,17 @@ const getTransaction = expressAsyncHandler(async (req, res) => {
 })
 
 const approveTransaction = expressAsyncHandler(async (req, res) => {
-    const { user_id  } = req.body
+    if (req.user_type !== 'admin' ) {
+        return res.status(400).json({'status': 'Error! You have no permision to approve this transaction'})
+    }
     let transaction = await Transaction.findOne({ _id: req.params.id });
     if (!transaction) {
         return res.status(404).json({ "error": "Transaction not found" });
     }
     transaction = format(transaction)
-    let user = await User.findById(user_id)
-    user = format(user)
     let wallet = Wallet.findOne({ number: transaction.number })
     if (!wallet) {
         res.status(404).json({'status': 'Error! Wallet not found'})
-    }
-    if (user.type !== 'admin' ) {
-        return res.status(400).json({'status': 'Error! You have no permision to approve this transaction'})
     }
     const newWallet = {balance: wallet.balance}
     const updatedItems = {};

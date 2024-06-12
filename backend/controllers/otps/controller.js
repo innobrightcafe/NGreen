@@ -9,7 +9,8 @@ const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = 
 
 
 const createOtp = expressAsyncHandler(async (req, res) => {
-    const { carrier_id, order_id, user_id } = req.body
+    const { carrier_id, order_id } = req.body
+    const user_id = req.user_id
     const user = format(await User.findById(user_id))
     if (!user.id) {
         return res.status(400).json({ "error": "User not found" })
@@ -28,7 +29,7 @@ const createOtp = expressAsyncHandler(async (req, res) => {
     }
     const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
     console.log(otp);
-    const newOtp = Otp.create({ user_id: req.body.user_id, order_id: req.body.order_id, carrier_id: req.body.carrier_id, otp: req.body.otp })
+    const newOtp = Otp.create({ user_id: user_id, order_id: req.body.order_id, carrier_id: req.body.carrier_id, otp: req.body.otp })
     return res.status(201).json(format(newOtp))
 })
 
@@ -41,7 +42,9 @@ const getOtp = expressAsyncHandler(async (req, res) => {
 })
 
 const confirmOtp = expressAsyncHandler( async (req, res) => {
-    const { carrier_id, order_id, user_id } = req.body
+    const { user_id, order_id } = req.body
+    const holder = req.body.carrier_id
+    const carrier_id = req.user_id
     const carrier = format(await Carrier.findById(carrier_id))
     if (!carrier.id) {
         return res.status(400).json({'error': "No such Carrier"})

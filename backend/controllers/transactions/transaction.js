@@ -24,9 +24,9 @@ const handleValidation = expressAsyncHandler(async (req, res, next) => {
     next();
 });
 
-router.route('/').post(validateTransaction, handleValidation, createTransaction).get(getTransactions)
-router.route('/:id').get(getTransaction)
-router.route('/:id/approve').put(approveTransaction)
+router.route('/').post(verifyCarrierUserAndAdmin, validateTransaction, handleValidation, createTransaction).get(getTransactions)
+router.route('/:id').get(verifyCarrierUserAndAdmin, getTransaction)
+router.route('/:id/approve').put(verifyAdmin, approveTransaction)
 
 
 module.exports = router;

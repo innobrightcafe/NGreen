@@ -7,9 +7,10 @@ const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = 
 
 
 const createRating = expressAsyncHandler( async(req,res)=> {
-    const user = format(await User.findById(req.body.user_id))
+    const user_id = req.user_id
+    const user = format(await User.findById(user_id))
     if (!user.id) {
-        return res.status(400).json({"error": "User not found"})
+        return res.status(403).json({"error": "User not AUTHORIZED"})
     }
     const order = format(await Order.findById(req.body.order_id))
     if(!order.id) {
@@ -18,7 +19,7 @@ const createRating = expressAsyncHandler( async(req,res)=> {
     if(!req.body.rating) {
         return res.status(400).json({"error": "rating must be in the request body"})
     }
-    const carrier = format(await Carrier.findById(req.body.carier_id))
+    const carrier = format(await Carrier.findById(req.body.carrier_id))
     if(!carrier.id){
         return res.status(400).json({"error": "Carrier not found"})
     }
@@ -26,7 +27,7 @@ const createRating = expressAsyncHandler( async(req,res)=> {
     const len = ratings.length;
     const newRating = (carrier.rating * len + req.body.rating)/(len + 1)
     await Carrier.findByIdAndUpdate(carrier.id, { $set: {rating: newRating} }, { new: true })
-    const rating = Rating.create({ user_id: req.body.user_id, order_id:req.body.order_id, carrier_id: req.body.carrier_id, rating: req.body.rating})
+    const rating = Rating.create({ user_id, order_id:req.body.order_id, carrier_id: req.body.carrier_id, rating: req.body.rating})
     return res.status(201).json(format(rating))
 })
 
