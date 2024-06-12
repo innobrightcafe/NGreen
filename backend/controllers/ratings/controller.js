@@ -19,7 +19,8 @@ const createRating = expressAsyncHandler( async(req,res)=> {
     if(!req.body.rating) {
         return res.status(400).json({"error": "rating must be in the request body"})
     }
-    const carrier = format(await Carrier.findById(req.body.carrier_id))
+    const carrier_id = order.carrier_id
+    const carrier = format(await Carrier.findById(order.carrier_id))
     if(!carrier.id){
         return res.status(400).json({"error": "Carrier not found"})
     }
@@ -27,7 +28,7 @@ const createRating = expressAsyncHandler( async(req,res)=> {
     const len = ratings.length;
     const newRating = (carrier.rating * len + req.body.rating)/(len + 1)
     await Carrier.findByIdAndUpdate(carrier.id, { $set: {rating: newRating} }, { new: true })
-    const rating = Rating.create({ user_id, order_id:req.body.order_id, carrier_id: req.body.carrier_id, rating: req.body.rating})
+    const rating = Rating.create({ user_id, order_id:req.body.order_id, carrier_id, rating: req.body.rating})
     return res.status(201).json(format(rating))
 })
 
@@ -51,7 +52,7 @@ const updateRating = expressAsyncHandler( async(req, res) => {
         res.status(400).json({"error": "Rating cannot be found"})
     }
     if(!req.body.rating) {
-        return res.status(400).json({"error": "rating id needed"})
+        return res.status(400).json({"error": "rating must be in the request body"})
     }
     const carrier = format(await Carrier.findById(rating.carrier_id))
     const ratings = await Rating.find({carrier_id: rating.carrier_id});

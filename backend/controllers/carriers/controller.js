@@ -20,7 +20,7 @@ const createCarrier = expressAsyncHandler(async (req, res) => {
             }
         }
     }
-    if(!agent_id){
+    if (!agent_id) {
         agent_id = process.env.ADMIN_ID
     }
     const hashpassword = await hashPassword(req.body.password);
@@ -35,9 +35,14 @@ const createCarrier = expressAsyncHandler(async (req, res) => {
 });
 
 const getCarriers = expressAsyncHandler(async (req, res) => {
-    const active = req.query.active || true
-    const approved = req.query.approved || true
-    const carriers = await Carrier.find({ active, approved });
+    let carriers = ''
+    if (req.query.active || req.query.approved) {
+        const active = req.query.active || true
+        const approved = req.query.approved || true
+        carriers = await Carrier.find({ active, approved });
+    } else {
+        carriers = await Carrier.find({});
+    }
     value = []
     for (let carrier of carriers) {
         value.push(format(carrier))

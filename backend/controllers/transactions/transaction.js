@@ -6,9 +6,6 @@ const { body, validationResult } = require('express-validator');
 
 
 const validateTransaction = [
-    body('number')
-        .isInt().withMessage('Wallet number must be a number')
-        .notEmpty().withMessage('Wallet ID is required'),
     body('amount')
         .isDecimal({ decimal_digits: '0,2' }).withMessage('Amount must be a decimal number with up to two decimal places')
         .isFloat({ gt: 0 }).withMessage('Amount must be greater than 0'),
@@ -24,7 +21,7 @@ const handleValidation = expressAsyncHandler(async (req, res, next) => {
     next();
 });
 
-router.route('/').post(verifyCarrierUserAndAdmin, validateTransaction, handleValidation, createTransaction).get(getTransactions)
+router.route('/').post(verifyCarrierUserAndAdmin, validateTransaction, handleValidation, createTransaction).get(verifyCarrierUserAndAdmin ,getTransactions)
 router.route('/:id').get(verifyCarrierUserAndAdmin, getTransaction)
 router.route('/:id/approve').put(verifyAdmin, approveTransaction)
 

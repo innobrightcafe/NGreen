@@ -34,13 +34,35 @@ const createOrder = expressAsyncHandler(async (req, res) => {
 })
 
 const getOrders = expressAsyncHandler(async (req, res) => {
-    let orders = await Order.find()
+    const user_id = req.user_id
+    let orders = ''
+    if (req.user_type == "admin") {
+        orders = await Order.find()
+    } else if (req.user_id == "user") {
+        orders = await Order.find({user_id})
+    } else {
+        orders = await Order.find({carrier_id: user_id})
+    }
+    if (!orders) {
+        return res.status(200).json({"status": "No Order"})
+    }
     orders = orders.map(order => format(order))
     return res.status(200).json(orders)
 })
 
 const getOrder = expressAsyncHandler(async (req, res) => {
-    const order = await Order.findById(req.params.id)
+    let order =''
+    const user_id = req.user_id
+    if (req.user_type == "admin") {
+        order = Order.findById(req.params.id)
+    } else if (req.user_type == "user") {
+        order = Order.find({_id: req.params.id, user_id})
+    } else {
+        order = Order.find({_id: req.params.id, carrier_id: user_id})
+    }
+    if (!order) {
+        return res.status(200).json({"status": "No Such Order"})
+    }
     return res.status(200).json(format(order))
 })
 
@@ -51,14 +73,19 @@ const updateOrder = expressAsyncHandler(async (req, res) => {
         return res.status(404).json({ message: 'User not found' })
     }
     updated = {}
-    if (req.body.carrier_id) {
-        updated.carrier_id = req.body.carrier_id
-    }
     if (req.body.status) {
         updated.status = req.body.status
     }
     if (req.body.amount) {
         updated.amount = req.body.amount
+    }
+    if (req.body.carrier_id) {
+        const carrier = await Carrier.findById(req.body.carrier_id)
+        if(!carrier) {
+            return res.status(404).json({ message: 'Carrier not found' })
+        }
+        updated.carrier_id = req.body.carrier_id
+        updated.status =  'inprogess'
     }
     if (req.body.description) {
         updated.description = req.body.description

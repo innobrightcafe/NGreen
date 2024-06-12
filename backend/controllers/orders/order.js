@@ -20,7 +20,7 @@ const handleValidation = expressAsyncHandler(async (req, res, next) => {
     next();
 });
 
-router.route('/').post(verifyUser,validateOrder, handleValidation, createOrder).get(verifyCarrierUserAndAdmin,getOrders)
+router.route('/').post(verifyUser, validateOrder, handleValidation, createOrder).get(verifyCarrierUserAndAdmin,getOrders)
 router.route('/:id').get(verifyCarrierUserAndAdmin,  getOrder).put(verifyUser, validateOrder, handleValidation, updateOrder);
 // router.route('/:id/approve').put(approveTransaction)
 

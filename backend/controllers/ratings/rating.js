@@ -6,9 +6,6 @@ const { body, validationResult } = require('express-validator');
 
 
 const validateRate = [
-    body('carrier_id')
-        .isString().withMessage('Carrier ID must be a string')
-        .notEmpty().withMessage('Carrier ID is required'),
     body('order_id')
         .isString().withMessage('Order ID must be a string')
         .notEmpty().withMessage('Order ID is required'),
