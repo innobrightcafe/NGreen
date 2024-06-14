@@ -8,7 +8,10 @@ const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = 
 
 
 const createTransaction = expressAsyncHandler(async (req, res) => {
-    const {  type, amount, number } = req.body
+    if (!req.body.amount) {
+        return res.status(400).json({"error": "There should be amount in the request body"})
+    }
+    const {  type, amount } = req.body
     const user_id = req.user_id 
     let user = ''
     if (req.user_type == 'carrier') {
@@ -22,13 +25,13 @@ const createTransaction = expressAsyncHandler(async (req, res) => {
             return res.status(400).json({'status': 'Error! You have no permision to make this transaction'})
         }
     }
-    let wallet = format(await Wallet.findOne({ number, user_id }))
+    let wallet = format(await Wallet.findOne({ user_id }))
+    const number = wallet.number
     if (!wallet.id) {
         return res.status(400).json({'status': 'Error! Cannot find my wallet'})
     }
-    logger.info(`User ${user.email} is making a transaction ${type} of ${amount} with wallet number ${number}`)
+    logger.info(`User ${user.email} is making a transaction ${type} of ${amount} with wallet number ${wallet.number}`)
     const description = req.body.description || ''
-    wallet = format(wallet)
     let status = "pending"
     if (type === "debit") {
         if (wallet.balance < amount) {
@@ -45,31 +48,44 @@ const createTransaction = expressAsyncHandler(async (req, res) => {
 })
 
 const getTransactions = expressAsyncHandler(async (req, res) => {
-    let transactions = await Transaction.find()
+    let transactions = ''
+    if (req.user_type == 'admin') {
+        transactions = await Transaction.find()
+    } else {
+        transactions = await Transaction.find({user_id: req.user_id})
+    }
+    if(!transactions) {
+        return res.status(200).json({'error': 'No transaction'})
+    }
     transactions = transactions.map(transaction => format(transaction))
     return res.status(200).json(transactions)
 })
 
 const getTransaction = expressAsyncHandler(async (req, res) => {
-    const transaction = await Transaction.findById(req.params.id)
+    let transaction = ''
+    if (req.user_type == 'admin'){
+        transaction = await Transaction.findById(req.params.id)
+    } else {
+        transaction = await Transaction.findById(req.params.id)
+    }
+    if(!transaction) {
+        return res.status(400).json({'error': 'No such transaction'})
+    }
     return res.status(200).json(format(transaction))
 })
 
 const approveTransaction = expressAsyncHandler(async (req, res) => {
-    const { user_id  } = req.body
+    if (req.user_type !== 'admin' ) {
+        return res.status(400).json({'status': 'Error! You have no permision to approve this transaction'})
+    }
     let transaction = await Transaction.findOne({ _id: req.params.id });
     if (!transaction) {
         return res.status(404).json({ "error": "Transaction not found" });
     }
     transaction = format(transaction)
-    let user = await User.findById(user_id)
-    user = format(user)
     let wallet = Wallet.findOne({ number: transaction.number })
     if (!wallet) {
         res.status(404).json({'status': 'Error! Wallet not found'})
-    }
-    if (user.type !== 'admin' ) {
-        return res.status(400).json({'status': 'Error! You have no permision to approve this transaction'})
     }
     const newWallet = {balance: wallet.balance}
     const updatedItems = {};

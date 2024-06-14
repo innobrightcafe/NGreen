@@ -103,14 +103,15 @@ const verifyAdmin = (req, res, next) => {
     }
 
     try {
-        const admin = jwt.verify(token, process.env.SECRET_KEY);
-        if (admin.admin.type !== 'admin') {
-            return res.status(403).json({ error: "Forbidden: You have no authoeity to perform this actions" });
+        const decodedToken = jwt.verify(token, process.env.SECRET_KEY);
+        if (decodedToken.user && decodedToken.user.type === 'admin') {
+            req.authUser = decodedToken.user;
+            req.user_id = decodedToken.user.id;
+            req.user_type = 'admin';
+            next();
+        } else {
+            return res.status(403).json({ error: "Forbidden: You have no authority to perform this action" });
         }
-        req.authAdmin = admin.admin;
-        req.user_id = admin.admin.id;
-        req.user_type = 'admin';
-        next();
     } catch (error) {
         console.log(error.name + ' ' + error.message);
         return res.status(401).json({ error: "Unauthorized: Invalid Token" });
@@ -137,13 +138,12 @@ const verifyCarrier = (req, res, next) => {
 
     try {
         const carrier = jwt.verify(token, process.env.SECRET_KEY);
-        if (carrier.carrier.type !== 'carrier') {
+        if (!carrier.carrier) {
             return res.status(403).json({ error: "Forbidden: You have no authoeity to perform this actions" });
         }
-        req.authCarrier = carrier.carrier;
+        req.authUser = carrier.carrier;
         req.user_id = carrier.carrier.id;
         req.user_type = 'carrier';
-        console.log(req.carrier_id)
         next();
     } catch (error) {
         console.log(error.name + ' ' + error.message);
@@ -171,32 +171,29 @@ const verifyCarrierAndAdmin = expressAsyncHandler(async (req, res, next) => {
 
     try {
         const admin = jwt.verify(token, process.env.SECRET_KEY);
-        if (admin.admin.type !== 'admin') {
-            try {
-                const carrier = jwt.verify(token, process.env.SECRET_KEY);
-                if (carrier.carrier.type !== 'carrier') {
-                    return res.status(403).json({ error: "Forbidden: You have no authoeity to perform this actions" });
-                }
-                req.authCarrier = carrier.carrier;
-                req.carrier_id = carrier.carrier.id;
-                req.user_type = 'carrier';
-                console.log(req.carrier_id)
-                next();
-            } catch (error) {
-                console.log(error.name + ' ' + error.message);
-                return res.status(401).json({ error: "Unauthorized: Invalid Token" });
+        if (admin.user) {
+            if (admin.user.type === 'admin') {
+                req.authUser = admin.user;
+                req.user_id = admin.user.id;
+                req.user_type = 'admin';
+            } else {
+                return res.status(403).json({ error: "Forbidden: You do not have authority to perform this action" });
             }
-            req.authAdmin = admin.admin;
-            req.user_id = admin.admin.id;
-            req.user_type = 'admin';
-            next();
+        } else if (admin.carrier) {
+            req.authUser = admin.carrier;
+            req.user_id = admin.carrier.id;
+            req.user_type = 'carrier';
+        } else {
+            return res.status(403).json({ error: "Forbidden: You do not have authority to perform this action" });
         }
+        next();
     } catch (error) {
-
         console.log(error.name + ' ' + error.message);
         return res.status(401).json({ error: "Unauthorized: Invalid Token" });
     }
-})
+});
+
+
 
 const verifyCarrierUserAndAdmin = expressAsyncHandler(async (req, res, next) => {
     const bearerHeader = req.headers['authorization'];
@@ -216,33 +213,26 @@ const verifyCarrierUserAndAdmin = expressAsyncHandler(async (req, res, next) => 
     }
 
     try {
-        const admin = jwt.verify(token, process.env.SECRET_KEY);
-        if (admin.admin.type !== 'admin' || admin.admin.type !== 'user') {
-            try {
-                const carrier = jwt.verify(token, process.env.SECRET_KEY);
-                if (carrier.carrier.type !== 'carrier') {
-                    return res.status(403).json({ error: "Forbidden: You have no authoeity to perform this actions" });
-                }
-                req.authCarrier = carrier.carrier;
-                req.user_id = carrier.carrier.id;
-                req.user_type = 'carrier';
-                console.log(req.carrier_id)
-                next();
-            } catch (error) {
-                console.log(error.name + ' ' + error.message);
-                return res.status(401).json({ error: "Unauthorized: Invalid Token" });
-            }
-            req.authAdmin = admin.admin;
-            req.user_id = admin.admin.id;
-            req.user_type = admin.admin.type;
-            next();
-        }
-    } catch (error) {
+        const payload = jwt.verify(token, process.env.SECRET_KEY);
 
-        console.log(error.name + ' ' + error.message);
+        if (payload.user) {
+            req.authUser = payload.user;
+            req.user_id = payload.user.id;
+            req.user_type = payload.user.type;
+        } else if (payload.carrier) {
+            req.authUser = payload.carrier;
+            req.user_id = payload.carrier.id;
+            req.user_type = 'carrier';
+        } else {
+            return res.status(403).json({ error: "Forbidden: You do not have authority to perform this action" });
+        }
+
+        next();
+    } catch (error) {
+        console.log(`${error.name}: ${error.message}`);
         return res.status(401).json({ error: "Unauthorized: Invalid Token" });
     }
-})
+});
 
 
 module.exports = { AuthenticateUser, verifyUser, AuthenticateCarrier, verifyCarrier, verifyAdmin, verifyCarrierAndAdmin, verifyCarrierUserAndAdmin }

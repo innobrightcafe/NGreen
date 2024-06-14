@@ -39,7 +39,7 @@ const getUser = expressAsyncHandler(async (req, res) => {
 });
 
 const updateUser = expressAsyncHandler(async (req, res) => {
-    const user = await User.findOne({ _id: req.params.id, type: 'user' });
+    const user = await User.findOne({ _id: req.user_id, type: 'user' });
     if (!user) {
         return res.status(404).json({ "error": "User not found" });
     }

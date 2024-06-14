@@ -3,7 +3,7 @@ const logger = require('./logger');
 const { cleaner }= require('./transcleaner');
 
 // Schedule a task to log a message every hour
-cron.schedule('5 * * * * *', async () => {
+cron.schedule('0 */15 * * * *', async () => {
   try {
     logger.info('Start Transaction Cleaning Process...');
     await cleaner();

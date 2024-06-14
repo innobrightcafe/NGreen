@@ -2,6 +2,7 @@ const router = require('express').Router()
 const { createCarrier, getCarriers, getCarrier, updateCarrier, approveCarrier } = require('./controller')
 const expressAsyncHandler = require('express-async-handler');
 const { body, validationResult } = require('express-validator');
+const { AuthenticateUser, verifyUser, AuthenticateCarrier, verifyCarrier, verifyCarrierAndAdmin, verifyAdmin, verifyCarrierUserAndAdmin } = require('../../utils/auth')
 
 
 const validateCarrier = [
@@ -33,8 +34,8 @@ const handleValidation = expressAsyncHandler(async (req, res, next) => {
 });
 
 
-router.route('/').get(getCarriers).post(validateCarrier, handleValidation, createCarrier)
-router.route('/:id').get(getCarrier).put(updateCarrier)
-router.route('/:id/approve').put(approveCarrier)
+router.route('/').get(verifyCarrierUserAndAdmin, getCarriers).post(validateCarrier, handleValidation, createCarrier)
+router.route('/:id').get(verifyCarrierUserAndAdmin, getCarrier).put(verifyCarrierAndAdmin, updateCarrier)
+router.route('/:id/approve').put(verifyAdmin, approveCarrier)
 
 module.exports = router

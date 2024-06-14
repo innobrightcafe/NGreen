@@ -35,9 +35,9 @@ app.get('/database', (req, res) => {
 
 app.post('/auth/users', AuthenticateUser)
 app.post('/auth/carriers', AuthenticateCarrier)
-app.use('/admins', verifyAdmin ,require('./controllers/admin/admin.js'))
+app.use('/admins', require('./controllers/admin/admin.js'))
 
-app.use('/users', verifyUser ,require('./controllers/users/user.js'))
+app.use('/users', require('./controllers/users/user.js'))
 app.use('/wallets', require('./controllers/wallets/wallet.js'))
 app.use('/transactions', require('./controllers/transactions/transaction.js'))
 app.use('/carriers', require('./controllers/carriers/carrier.js'))

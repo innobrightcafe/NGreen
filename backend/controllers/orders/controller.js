@@ -9,7 +9,8 @@ const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = 
 
 
 const createOrder = expressAsyncHandler(async (req, res) => {
-    const { user_id, amount } = req.body
+    const { amount } = req.body
+    const user_id = req.user_id
     const user = format(await User.findById(user_id))
     if (!user.id) {
         return res.status(404).json({ message: 'User not found' })
@@ -28,35 +29,63 @@ const createOrder = expressAsyncHandler(async (req, res) => {
 
     const transaction_id = format(await Transaction.create({ number: wallet.number, user_id, type, status, amount, description })).id
     const order = await Order.create({ user_id, amount, status, description, transaction_id })
-    return res.status(201).json(order)
+    return res.status(201).json(format(order))
 
 })
 
 const getOrders = expressAsyncHandler(async (req, res) => {
-    let orders = await Order.find()
+    const user_id = req.user_id
+    let orders = ''
+    if (req.user_type == "admin") {
+        orders = await Order.find()
+    } else if (req.user_type == "user") {
+        orders = await Order.find({user_id})
+    } else {
+        orders = await Order.find({carrier_id: user_id})
+    }
+    if (!orders) {
+        return res.status(200).json({"status": "No Order"})
+    }
     orders = orders.map(order => format(order))
     return res.status(200).json(orders)
 })
 
 const getOrder = expressAsyncHandler(async (req, res) => {
-    const order = await Order.findById(req.params.id)
+    let order =''
+    const user_id = req.user_id
+    if (req.user_type == "admin") {
+        order = await Order.findById(req.params.id)
+    } else if (req.user_type == "user") {
+        order = Order.findOne({_id: req.params.id, user_id})
+    } else {
+        order = await Order.findOne({_id: req.params.id, carrier_id: user_id})
+    }
+    if (!order) {
+        return res.status(200).json({"status": "No Such Order"})
+    }
     return res.status(200).json(format(order))
 })
 
 const updateOrder = expressAsyncHandler(async (req, res) => {
-    const user = format(await User.findById(req.body.user_id))
+    const user_id = req.user_id
+    const user = format(await User.findById(user_id))
     if (!user.id) {
         return res.status(404).json({ message: 'User not found' })
     }
     updated = {}
-    if (req.body.carrier_id) {
-        updated.carrier_id = req.body.carrier_id
-    }
     if (req.body.status) {
         updated.status = req.body.status
     }
     if (req.body.amount) {
         updated.amount = req.body.amount
+    }
+    if (req.body.carrier_id) {
+        const carrier = await Carrier.findById(req.body.carrier_id)
+        if(!carrier) {
+            return res.status(404).json({ message: 'Carrier not found' })
+        }
+        updated.carrier_id = req.body.carrier_id
+        updated.status =  'inprogress'
     }
     if (req.body.description) {
         updated.description = req.body.description

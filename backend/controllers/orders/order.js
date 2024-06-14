@@ -1,14 +1,19 @@
 const router = require('express').Router()
 const expressAsyncHandler = require('express-async-handler');
 const { createOrder, getOrders, getOrder, updateOrder }= require('./controller')
+const { AuthenticateUser, verifyUser, AuthenticateCarrier, verifyCarrier, verifyCarrierAndAdmin, verifyAdmin, verifyCarrierUserAndAdmin } = require('../../utils/auth')
 const { body, validationResult } = require('express-validator');
 
 
 const validateOrder = [
-    body('user_id')
-        .isString().withMessage('User ID must be a string')
-        .notEmpty().withMessage('User ID is required'),
     body('amount')
+        .isDecimal({ decimal_digits: '0,2' }).withMessage('Amount must be a decimal number with up to two decimal places')
+        .isFloat({ gt: 0 }).withMessage('Amount must be greater than 0')
+];
+
+const validateUpdateOrder = [
+    body('amount')
+        .optional()
         .isDecimal({ decimal_digits: '0,2' }).withMessage('Amount must be a decimal number with up to two decimal places')
         .isFloat({ gt: 0 }).withMessage('Amount must be greater than 0')
 ];
@@ -22,8 +27,8 @@ const handleValidation = expressAsyncHandler(async (req, res, next) => {
     next();
 });
 
-router.route('/').post(validateOrder, handleValidation, createOrder).get(getOrders)
-router.route('/:id').get(getOrder).put(validateOrder, handleValidation, updateOrder);
+router.route('/').post(verifyUser, validateOrder, handleValidation, createOrder).get(verifyCarrierUserAndAdmin,getOrders)
+router.route('/:id').get(verifyCarrierUserAndAdmin,  getOrder).put(verifyUser, validateUpdateOrder, handleValidation, updateOrder);
 // router.route('/:id/approve').put(approveTransaction)
 
 
