@@ -8,28 +8,36 @@ const logger = require('./logger.js')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('./formatter.js')
 
 
-
-const Sharer = async (order_id) => {
-
-    const order = format(await Order.findById(order_id));
-    if (!order.id) {
+const sharer = async (order_id) => {
+    let order = await Order.findById(order_id);
+    if (!order) {
         throw new Error("No such order");
     }
+    order = format(order);
 
-    const transaction = format(await Transaction.find({ transaction_id: order.transaction_id }));
-    const wallet = Wallet.find({ number: transaction.number });
+    const transaction = format(await Transaction.findById(order.transaction_id ));
+    console.log(transaction)
+    const wallet = await Wallet.findOne({ user_id: transaction.user_id });
+    if (!wallet) {
+        throw new Error("User wallet not found");
+    }
 
     const carrier = format(await Carrier.findById(order.carrier_id));
     if (!carrier.id) {
         throw new Error("No such carrier");
     }
-    let agent3 = ''
-    const agent = format(await User.findById(order.agent_id));
-    const agent1 = format(await Carrier.findById(order.agent_id));
-    if (!agent.id && !agent1.id) {
-        agent3 = ''
+
+    let agent3 = '';
+    const agent = await User.findById(order.agent_id);
+    const agent1 = await Carrier.findById(order.agent_id);
+    if (!agent && !agent1) {
+        agent3 = '';
     } else {
-        agent3 = agent.id
+        if(agent){
+            agent3 = format(agent).id;
+        } else if(agent1){
+            agent3 = format(agent1).id;
+        }
     }
 
     const agentShare = transaction.amount * 0.05;
@@ -45,25 +53,33 @@ const Sharer = async (order_id) => {
     if (agent3) {
         logger.info(`Agent share: ${agentShare}`);
     }
+
     // Debit user
     wallet.balance -= transaction.amount;
 
     // Credit carrier
-    const carrierWallet = Wallet.find({ user_id: order.carrier_id });
+    const carrierWallet = await Wallet.findOne({ user_id: order.carrier_id });
+    if (!carrierWallet) {
+        throw new Error("Carrier wallet not found");
+    }
     carrierWallet.balance += carrierShare;
 
-
     // Credit agent if exists
+    let agentWallet;
     if (agent3) {
-        const agentWallet = Wallet.find({ user_id: agent3 });
+        agentWallet = await Wallet.findOne({ user_id: agent3 });
+        if (!agentWallet) {
+            throw new Error("Agent wallet not found");
+        }
         agentWallet.balance += agentShare;
     }
-    logger.info(`User balance after transaction: ${wallet.balance}, Admin balance after transaction: ${adminWallet.balance}, Carrier balance after transaction: ${carrierWallet.balance}`);
 
     // Credit admin
-    const adminWallet = Wallet.find({ number: 987654321 });
+    const adminWallet = await Wallet.findOne({ number: 987654321 });
+    if (!adminWallet) {
+        throw new Error("Admin wallet not found");
+    }
     adminWallet.balance += adminShare;
-
 
     // Save changes
     await wallet.save();
@@ -72,12 +88,13 @@ const Sharer = async (order_id) => {
     if (agent3) {
         await agentWallet.save();
     }
-    logger.info
-    await Order.findByIdAndUpdate(order.id, { $set: { status: "delivered" } }, { new: true })
-    await Transaction.findByIdAndUpdate(transaction.id, { $set: { status: "completed" } }, { new: true })
+
+    const updatedOrder = await Order.findByIdAndUpdate(order.id, { $set: { status: "delivered" } }, { new: true });
+    const updatedTransaction = await Transaction.findByIdAndUpdate(transaction.id, { $set: { status: "completed" } }, { new: true });
+
     logger.info(`Order status updated to: ${updatedOrder.status}, Transaction status updated to: ${updatedTransaction.status}`);
 
-    return 1
+    return 1;
 };
 
-module.exports = { Sharer }
+module.exports = { sharer }

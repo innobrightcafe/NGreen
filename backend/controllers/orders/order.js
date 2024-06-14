@@ -11,6 +11,13 @@ const validateOrder = [
         .isFloat({ gt: 0 }).withMessage('Amount must be greater than 0')
 ];
 
+const validateUpdateOrder = [
+    body('amount')
+        .optional()
+        .isDecimal({ decimal_digits: '0,2' }).withMessage('Amount must be a decimal number with up to two decimal places')
+        .isFloat({ gt: 0 }).withMessage('Amount must be greater than 0')
+];
+
 
 const handleValidation = expressAsyncHandler(async (req, res, next) => {
     const errors = validationResult(req);
@@ -21,7 +28,7 @@ const handleValidation = expressAsyncHandler(async (req, res, next) => {
 });
 
 router.route('/').post(verifyUser, validateOrder, handleValidation, createOrder).get(verifyCarrierUserAndAdmin,getOrders)
-router.route('/:id').get(verifyCarrierUserAndAdmin,  getOrder).put(verifyUser, validateOrder, handleValidation, updateOrder);
+router.route('/:id').get(verifyCarrierUserAndAdmin,  getOrder).put(verifyUser, validateUpdateOrder, handleValidation, updateOrder);
 // router.route('/:id/approve').put(approveTransaction)
 
 

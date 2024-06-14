@@ -11,13 +11,13 @@ const validateOTP = [
         .notEmpty().withMessage('Order ID is required')
 ];
 
-const validatConfirmeOTP = [
+const validatConfirmOTP = [
     body('order_id')
         .isString().withMessage('Order ID must be a string')
         .notEmpty().withMessage('Order ID is required'),
     body('otp')
-        .isInt().withMessage('otp must be a number')
-        .notEmpty().withMessage('Wallet ID is required'),
+        .isString().withMessage('otp must be a string')
+        .notEmpty().withMessage('Otp is required'),
 ];
 
 
@@ -31,7 +31,7 @@ const handleValidation = expressAsyncHandler(async (req, res, next) => {
 
 router.route('/').post(verifyUser, validateOTP, handleValidation, createOtp),
 router.route('/:order_id/orders').get(verifyUser, getOtp)
-router.route('/confirm').post(verifyCarrier, validatConfirmeOTP, handleValidation, confirmOtp)
+router.route('/confirm').post(verifyCarrier, validatConfirmOTP, handleValidation, confirmOtp)
 
 
 

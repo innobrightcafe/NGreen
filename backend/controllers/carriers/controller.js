@@ -63,7 +63,7 @@ const updateCarrier = expressAsyncHandler(async (req, res) => {
     if (!carrier) {
         return res.status(404).json({ "error": "Carrier not found" });
     }
-    if (req.user_type !== 'admin' || !carrier) {
+    if (req.user_type !== 'admin' && !carrier) {
         return res.status(403).json({ "error": "You are not allowed to perform this transaction" });
     }
     const updatedItems = {};

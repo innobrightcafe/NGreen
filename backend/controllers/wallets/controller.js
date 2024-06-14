@@ -31,7 +31,7 @@ const getWallets = expressAsyncHandler(async (req, res) => {
 
 const getWalletByAdmin = expressAsyncHandler(async (req, res) => {
     const user_id = req.params.id
-    const wallet = await Wallet.find({user_id})
+    const wallet = await Wallet.findOne({user_id})
     if (!wallet) {
         return res.status(404).json({ message: 'Wallet not found' })
     }
@@ -40,7 +40,7 @@ const getWalletByAdmin = expressAsyncHandler(async (req, res) => {
 
 const getWalletByUser = expressAsyncHandler(async (req, res) => {
     const user_id = req.user_id
-    const wallet = await Wallet.find({user_id})
+    const wallet = await Wallet.findOne({user_id})
     if (!wallet) {
         return res.status(404).json({ message: 'Wallet not found' })
     }

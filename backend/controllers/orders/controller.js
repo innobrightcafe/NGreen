@@ -29,7 +29,7 @@ const createOrder = expressAsyncHandler(async (req, res) => {
 
     const transaction_id = format(await Transaction.create({ number: wallet.number, user_id, type, status, amount, description })).id
     const order = await Order.create({ user_id, amount, status, description, transaction_id })
-    return res.status(201).json(order)
+    return res.status(201).json(format(order))
 
 })
 
@@ -38,7 +38,7 @@ const getOrders = expressAsyncHandler(async (req, res) => {
     let orders = ''
     if (req.user_type == "admin") {
         orders = await Order.find()
-    } else if (req.user_id == "user") {
+    } else if (req.user_type == "user") {
         orders = await Order.find({user_id})
     } else {
         orders = await Order.find({carrier_id: user_id})
@@ -54,11 +54,11 @@ const getOrder = expressAsyncHandler(async (req, res) => {
     let order =''
     const user_id = req.user_id
     if (req.user_type == "admin") {
-        order = Order.findById(req.params.id)
+        order = await Order.findById(req.params.id)
     } else if (req.user_type == "user") {
-        order = Order.find({_id: req.params.id, user_id})
+        order = Order.findOne({_id: req.params.id, user_id})
     } else {
-        order = Order.find({_id: req.params.id, carrier_id: user_id})
+        order = await Order.findOne({_id: req.params.id, carrier_id: user_id})
     }
     if (!order) {
         return res.status(200).json({"status": "No Such Order"})
@@ -85,7 +85,7 @@ const updateOrder = expressAsyncHandler(async (req, res) => {
             return res.status(404).json({ message: 'Carrier not found' })
         }
         updated.carrier_id = req.body.carrier_id
-        updated.status =  'inprogess'
+        updated.status =  'inprogress'
     }
     if (req.body.description) {
         updated.description = req.body.description

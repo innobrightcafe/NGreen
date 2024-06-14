@@ -3,7 +3,7 @@ const moment = require('moment');
 
 const cleaner = async () => {
     try {
-        const eightHoursAgo = moment().subtract(1, 'hours').toDate();
+        const eightHoursAgo = moment().subtract(8, 'hours').toDate();
 
         await Transaction.updateMany(
             { 

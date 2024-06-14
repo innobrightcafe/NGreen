@@ -13,7 +13,7 @@ url = 'http://127.0.0.1:3000/'
 
 admin_auth = {
     'email': f'testuser@ngreen.usr',
-    'password': 'tester'
+    'password': 'tester123'
 }
 
 a_res = requests.post(url + 'auth/users', json=admin_auth)
@@ -50,7 +50,7 @@ user_headers = {
 user_id = a_res.json().get('user').get('id')
 usr =  {'lname': 'Mustapha'}
 
-b_res1 = requests.put(url + 'users/' + b_res.json().get('id'), json=usr, headers=user_headers)
+b_res1 = requests.put(url + 'users/' + user_id, json=usr, headers=user_headers)
 print("user Updated")
 pprint(b_res1.json())
 
@@ -64,10 +64,18 @@ pprint(b_res.json())
 
 # Carriers
 
+usr = {
+    'email': f'test{str(uuid.uuid4())}@ngreen.usr',
+    'password': 'Tester1111',
+    'pnumber': '07034526545',
+    'fname': 'Musa',
+    'lname': 'Mustapha',
+}
+
 usr['email'] = f'test{str(uuid.uuid4())}@ngreen.usr'
-usr['account_name'] = 'MUsa Mustapha'
+usr['account_name'] = 'Musa Mustapha'
 usr['account_bank'] = 'Zenith Bank'
-usr['account_name'] = 7089456123
+usr['account_number'] = 7089456123
 
 b_res = requests.post(url + 'carriers', json=usr)
 print("carrier created")
@@ -83,7 +91,7 @@ carrier_headers = {
     'Authorization': f'Bearer {carrier_token}'
 }
 
-car_id = b_res.json().get('carrier').get('id')
+car_id = a_res.json().get('carrier').get('id')
 usr =  {'fname' : 'Mumin'}
 
 b_res = requests.put(url + f'carriers/{car_id}', json=usr, headers=carrier_headers)
@@ -91,7 +99,7 @@ print("carriers Updated")
 pprint(b_res.json())
 
 b_res = requests.get(url + f'carriers/{car_id}', headers=carrier_headers)
-print("Get a particular carriers")
+print("Get a particular carrier")
 pprint(b_res.json())
 
 b_res = requests.get(url + 'carriers', headers=carrier_headers)
@@ -102,7 +110,7 @@ b_res = requests.put(url + f'carriers/{car_id}/approve', headers=admin_headers)
 print("Carrier Approved")
 pprint(b_res.json())
 
-b_res = requests.get(url + 'carriers', params={'active': True, 'approved': True}, headers=carrier_headers)
+b_res = requests.get(url + 'carriers', params={'active': 1, 'approved': 1}, headers=carrier_headers)
 print("Get Approved carriers")
 pprint(b_res.json())
 
@@ -166,7 +174,7 @@ pprint(b_res.json())
 
 ord_id = b_res.json().get('id')
 
-b_res = requests.put(url + 'orders' + ord_id, json={'carrier_id': car_id}, headers=user_headers)
+b_res = requests.put(url + 'orders/' + ord_id, json={'carrier_id': car_id}, headers=user_headers)
 print("Add A Driver")
 pprint(b_res.json())
 
@@ -184,42 +192,42 @@ pprint(b_res.json())
 
 ## OTP  
 b_res = requests.post(url + 'otps', json={'order_id': ord_id}, headers=user_headers)
-print("Create an Order")
+print("Create an Otp for an order")
 pprint(b_res.json())
 
-token = b_res.json().get('token')
+token = b_res.json().get('otp')
 
-b_res = requests.get(url + 'otps' + ord_id + '/otps', headers=user_headers)
-print("Create an Order")
+b_res = requests.get(url + 'otps/' + ord_id + '/orders', headers=user_headers)
+print("Get an otp of an Order")
 pprint(b_res.json())
 
-b_res = requests.post(url + 'otps' + '/confirm', json={'order_id': ord_id, 'token': token}, headers=carrier_headers)
+b_res = requests.post(url + 'otps' + '/confirm', json={'order_id': ord_id, 'otp': token}, headers=carrier_headers)
 print("Confirm completion of an Order")
 pprint(b_res.json())
 
 ## Ratings
 
 rate = {
-    "rating": 4.0,
+    "rating": 4,
     "order_id": ord_id
 }
 
 b_res = requests.post(url + 'ratings', json=rate, headers=user_headers)
-print("Create an Order")
+print("Create a Ratingr")
 pprint(b_res.json())
 
 rat_id = b_res.json().get('id')
 
 b_res = requests.get(url + 'ratings',  headers=user_headers)
-print("Create an Order")
+print("GET ALL ratings")
 pprint(b_res.json())
 
-b_res = requests.put(url + 'ratings', json={'rating': 5.0}, headers=user_headers)
-print("Create an Order")
+b_res = requests.put(url + 'ratings/' + rat_id, json={'rating': 5.0}, headers=user_headers)
+print("Update a Rating")
 pprint(b_res.json())
 
 b_res = requests.get(url + 'ratings/' + rat_id, headers=user_headers)
-print("Create an Order")
+print("Get a particular rating")
 pprint(b_res.json())
 
 ##  wallet
@@ -229,7 +237,7 @@ print("Get wallet of a particular user by user")
 pprint(b_res.json())
 
 b_res = requests.get(url + 'transactions', headers=user_headers)
-print("Get trnsaction oo a user")
+print("Get trnsaction of a user")
 pprint(b_res.json())
 
 

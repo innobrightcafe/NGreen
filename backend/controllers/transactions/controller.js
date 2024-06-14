@@ -32,7 +32,6 @@ const createTransaction = expressAsyncHandler(async (req, res) => {
     }
     logger.info(`User ${user.email} is making a transaction ${type} of ${amount} with wallet number ${wallet.number}`)
     const description = req.body.description || ''
-    wallet = format(wallet)
     let status = "pending"
     if (type === "debit") {
         if (wallet.balance < amount) {
