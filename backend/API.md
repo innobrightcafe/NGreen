@@ -91,7 +91,7 @@ Authorization: Bearer <user_token>
 Request:
 ```json
 {
-  "lname": "Mustapha"
+  "lname": "usxxpha"
 }
 Response:
 {
@@ -99,20 +99,15 @@ Response:
   "email": "test@ngreen.usr",
   "pnumber": "07034526545",
   "fname": "Musa",
-  "lname": "Mustapha"
+  "lname": "usxxpha"
 }
 ```
 ### Get User
 GET /users/:user_id
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
 Response:
-
-json
-
+```json
 {
   "id": "<user_id>",
   "email": "test@ngreen.usr",
@@ -120,21 +115,13 @@ json
   "fname": "Musa",
   "lname": "Musa"
 }
-Get All Users
-Endpoint:
-
-
-
+```
+### Get All Users
 GET /users
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
 Response:
-
-json
-
+```json
 [
   {
     "id": "<user_id>",
@@ -144,17 +131,13 @@ json
     "lname": "Musa"
   }
 ]
-Carriers
-Create Carrier
-Endpoint:
+```
 
-
-
+## Carriers
+### Create Carrier
 POST /carriers
 Request:
-
-json
-
+```json
 {
   "email": "test@ngreen.usr",
   "password": "Tester1111",
@@ -163,12 +146,9 @@ json
   "lname": "Mustapha",
   "account_name": "Musa Mustapha",
   "account_bank": "Zenith Bank",
-  "account_number": 7089456123
+  "account_number": 70xxx456123
 }
 Response:
-
-json
-
 {
   "id": "<carrier_id>",
   "email": "test@ngreen.usr",
@@ -177,30 +157,19 @@ json
   "lname": "Mustapha",
   "account_name": "Musa Mustapha",
   "account_bank": "Zenith Bank",
-  "account_number": 7089456123
+  "account_number": 708xx56123
 }
-Update Carrier
-Endpoint:
-
-
-
+```
+### Update Carrier
 PUT /carriers/:carrier_id
 Request Headers:
-
-
-
 Authorization: Bearer <carrier_token>
 Request:
-
-json
-
+```json
 {
   "fname": "Mumin"
 }
 Response:
-
-json
-
 {
   "id": "<carrier_id>",
   "email": "test@ngreen.usr",
@@ -208,21 +177,13 @@ json
   "fname": "Mumin",
   "lname": "Mustapha"
 }
-Get Carrier
-Endpoint:
-
-
-
+```
+### Get Carrier
 GET /carriers/:carrier_id
 Request Headers:
-
-
-
 Authorization: Bearer <carrier_token>
 Response:
-
-json
-
+```json
 {
   "id": "<carrier_id>",
   "email": "test@ngreen.usr",
@@ -230,21 +191,13 @@ json
   "fname": "Mumin",
   "lname": "Mustapha"
 }
-Get All Carriers
-Endpoint:
-
-
-
+```
+### Get All Carriers
 GET /carriers
 Request Headers:
-
-
-
 Authorization: Bearer <carrier_token>
 Response:
-
-json
-
+```json
 [
   {
     "id": "<carrier_id>",
@@ -254,40 +207,24 @@ json
     "lname": "Mustapha"
   }
 ]
-Approve Carrier
-Endpoint:
-
-ruby
-
+```
+### Approve Carrier
 PUT /carriers/:carrier_id/approve
 Request Headers:
-
-
-
 Authorization: Bearer <admin_token>
 Response:
-
-json
-
+```json
 {
   "id": "<carrier_id>",
-  "status": "approved"
+  "approved": True
 }
-Get Approved Carriers
-Endpoint:
-
-
-
+```
+### Get Approved Carriers
 GET /carriers?active=1&approved=1
 Request Headers:
-
-
-
 Authorization: Bearer <carrier_token>
 Response:
-
-json
-
+```json
 [
   {
     "id": "<carrier_id>",
@@ -298,21 +235,15 @@ json
     "status": "approved"
   }
 ]
-Wallets
-Get All Wallets
-Endpoint:
+```
 
-
-
+## Wallets
+### Get All Wallets
 GET /wallets
 Request Headers:
-
-
-
 Authorization: Bearer <admin_token>
 Response:
-
-json
+```json
 
 [
   {
@@ -321,39 +252,24 @@ json
     "user_id": "<user_id>"
   }
 ]
-Get Wallet of a User by Admin
-Endpoint:
-
-ruby
-
+```
+### Get Wallet of a User by Admin
 GET /wallets/:user_id/users
 Request Headers:
-
-
-
 Authorization: Bearer <admin_token>
 Response:
-
-json
-
+```json
 {
   "id": "<wallet_id>",
   "balance": 1000.00,
   "user_id": "<user_id>"
 }
-Get Wallet of Current User
-Endpoint:
-
-sql
-
+```
+### Get Wallet of Current User
 GET /wallets/current
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
-Response:
-
+```Response:
 json
 
 {
@@ -361,31 +277,21 @@ json
   "balance": 1000.00,
   "user_id": "<user_id>"
 }
-Transactions
-Create Transaction
-Endpoint:
+```
 
-
-
+## Transactions
+### Create Transaction
 POST /transactions
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
 Request:
-
-json
-
+```json
 {
   "amount": 1500.00,
   "description": "Test",
   "type": "credit"
 }
 Response:
-
-json
-
 {
   "id": "<transaction_id>",
   "amount": 1500.00,
@@ -393,21 +299,13 @@ json
   "type": "credit",
   "status": "pending"
 }
-Get All Transactions of a User
-Endpoint:
-
-
-
+```
+### Get All Transactions of a User
 GET /transactions
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
 Response:
-
-json
-
+```json
 [
   {
     "id": "<transaction_id>",
@@ -417,21 +315,13 @@ json
     "status": "completed"
   }
 ]
-Get All Transactions by Admin
-Endpoint:
-
-
-
+```
+### Get All Transactions by Admin
 GET /transactions
 Request Headers:
-
-
-
 Authorization: Bearer <admin_token>
 Response:
-
-json
-
+```json
 [
   {
     "id": "<transaction_id>",
@@ -441,21 +331,13 @@ json
     "status": "completed"
   }
 ]
-Get Transaction by ID
-Endpoint:
-
-
-
+```
+### Get Transaction by ID
 GET /transactions/:transaction_id
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
 Response:
-
-json
-
+```json
 {
   "id": "<transaction_id>",
   "amount": 1500.00,
@@ -463,58 +345,37 @@ json
   "type": "credit",
   "status": "completed"
 }
-Orders
-Create Order
-Endpoint:
+```
 
-
-
+## Orders
+### Create Order
 POST /orders
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
 Request:
-
-json
-
+```json
 {
   "amount": 1000.00,
   "description": "Let us ride"
 }
 Response:
-
-json
-
 {
   "id": "<order_id>",
   "amount": 1000.00,
   "description": "Let us ride",
-  "status": "pending"
+ "status": "pending"
 }
-Add Carrier to Order
-Endpoint:
-
-
-
+```
+### Add Carrier to Order
 PUT /orders/:order_id
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
 Request:
-
-json
-
+```json
 {
   "carrier_id": "<carrier_id>"
 }
 Response:
-
-json
-
 {
   "id": "<order_id>",
   "amount": 1000.00,
@@ -522,21 +383,12 @@ json
   "carrier_id": "<carrier_id>",
   "status": "assigned"
 }
-Get All Orders by Admin
-Endpoint:
-
-
-
+```
+### Get All Orders by Admin
 GET /orders
 Request Headers:
-
-
-
 Authorization: Bearer <admin_token>
-Response:
-
-json
-
+```Response:
 [
   {
     "id": "<order_id>",
@@ -545,21 +397,12 @@ json
     "status": "completed"
   }
 ]
-Get All Orders of a User
-Endpoint:
-
-
-
+```
+### Get All Orders of a User
 GET /orders
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
-Response:
-
-json
-
+```Response:
 [
   {
     "id": "<order_id>",
@@ -568,21 +411,12 @@ json
     "status": "completed"
   }
 ]
-Get All Orders of a Carrier
-Endpoint:
-
-
-
+```
+### Get All Orders of a Carrier
 GET /orders
 Request Headers:
-
-
-
 Authorization: Bearer <carrier_token>
-Response:
-
-json
-
+```Response:
 [
   {
     "id": "<order_id>",
@@ -591,124 +425,76 @@ json
     "status": "completed"
   }
 ]
-OTP
-Create OTP for an Order
-Endpoint:
+```
 
-
-
+## OTP
+### Create OTP for an Order
 POST /otps
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
 Request:
-
-json
-
+```json
 {
   "order_id": "<order_id>"
 }
 Response:
-
-json
-
 {
   "order_id": "<order_id>",
   "otp": "<otp>"
 }
-Get OTP of a Particular Order
-Endpoint:
-
-ruby
-
+```
+### Get OTP of a Particular Order
 GET /otps/:order_id/orders
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
-Response:
-
-json
-
+```Response:
 {
   "order_id": "<order_id>",
   "otp": "<otp>"
 }
-Confirm Completion of an Order
-Endpoint:
-
-
-
+```
+### Confirm Completion of an Order
 POST /otps/confirm
 Request Headers:
-
-
-
 Authorization: Bearer <carrier_token>
 Request:
-
-json
-
+```json
 {
   "order_id": "<order_id>",
   "otp": "<otp>"
 }
 Response:
-
-json
-
 {
   "order_id": "<order_id>",
-  "status": "completed"
+ "status": "completed"
 }
-Ratings
-Create Rating by a User
-Endpoint:
+```
 
-
-
+## Ratings
+### Create Rating by a User
 POST /ratings
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
 Request:
-
-json
-
+```json
 {
   "rating": 4,
   "order_id": "<order_id>"
 }
 Response:
-
-json
-
 {
   "id": "<rating_id>",
   "rating": 4,
   "order_id": "<order_id>",
   "user_id": "<user_id>"
 }
-Get All Ratings by a User
-Endpoint:
-
-
-
+```
+### Get All Ratings by a User
 GET /ratings
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
-Response:
-
+```Response:
 json
-
 [
   {
     "id": "<rating_id>",
@@ -717,54 +503,36 @@ json
     "user_id": "<user_id>"
   }
 ]
-Update Rating by ID
-Endpoint:
-
-
-
+```
+### Update Rating by ID
 PUT /ratings/:rating_id
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
 Request:
-
-json
-
+```json
 {
   "rating": 5.0
 }
 Response:
-
-json
-
 {
   "id": "<rating_id>",
   "rating": 5.0,
   "order_id": "<order_id>",
   "user_id": "<user_id>"
 }
-Get a Particular Rating
-Endpoint:
-
-
-
+```
+### Get a Particular Rating
 GET /ratings/:rating_id
 Request Headers:
-
-
-
 Authorization: Bearer <user_token>
-Response:
-
-json
-
+```Response:
 {
   "id": "<rating_id>",
   "rating": 4,
   "order_id": "<order_id>",
   "user_id": "<user_id>"
 }
-Conclusion
+```
+
+## Conclusion
 This documentation provides an overview of the NGREEN API endpoints, including how to authenticate users, manage users and carriers, handle transactions, orders, OTPs, and ratings. Each endpoint includes a description, request headers, request, and response examples to help you integrate and use the API effectively.
