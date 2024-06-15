@@ -16,7 +16,7 @@ const rateSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: Order
     },
-    rating: Number
+    rating: String
 }, { timestamps: true })
 
 module.exports = mongoose.model('Rate', rateSchema)

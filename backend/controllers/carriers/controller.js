@@ -24,7 +24,8 @@ const createCarrier = expressAsyncHandler(async (req, res) => {
         agent_id = process.env.ADMIN_ID
     }
     const hashpassword = await hashPassword(req.body.password);
-    const carrier = await Carrier.create({ account_number: req.body.account_number, account_bank: req.body.account_bank, account_name: req.body.account_name, agent_id, active: true, approved: false, fname: req.body.fname, lname: req.body.lname, password: hashpassword, refer: 0, pnumber: req.body.pnumber, type: 'Carrier', email: req.body.email });
+    const rating = '0.0'
+    const carrier = await Carrier.create({ rating, account_number: req.body.account_number, account_bank: req.body.account_bank, account_name: req.body.account_name, agent_id, active: true, approved: false, fname: req.body.fname, lname: req.body.lname, password: hashpassword, refer: 0, pnumber: req.body.pnumber, email: req.body.email });
     const newCarrier = format(carrier);
     const user_id = newCarrier.id;
     const number = Math.floor(Math.random() * 1000000000);
