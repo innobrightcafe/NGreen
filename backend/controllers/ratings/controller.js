@@ -26,7 +26,7 @@ const createRating = expressAsyncHandler(async (req, res) => {
     const carrier_id = order.carrier_id;
 
     // Parse rating and ensure it is a number
-    const rate = parseFloat(rating);
+    let rate = parseFloat(rating);
     if (isNaN(rate)) {
         return res.status(400).json({ "error": "Invalid rating value" });
     }
@@ -40,8 +40,9 @@ const createRating = expressAsyncHandler(async (req, res) => {
     // Calculate new average rating
     const ratings = await Rating.find({ carrier_id: carrier.id });
     const len = ratings.length;
-    const newRating = (carrier.rating * len + rate) / (len + 1);
-
+    let newRating = (carrier.rating * len + rate) / (len + 1);
+    newRating = newRating.toString();
+    rate = rate.toString();
     // Update carrier rating
     await Carrier.findByIdAndUpdate(carrier.id, { $set: { rating: newRating } }, { new: true });
 
@@ -77,10 +78,13 @@ const updateRating = expressAsyncHandler( async(req, res) => {
     const carrier = format(await Carrier.findById(rating.carrier_id))
     const ratings = await Rating.find({carrier_id: rating.carrier_id});
     const len = ratings.length;
-    const newRating = (carrier.rating * len + req.body.rating - rating.rating)/(len)
+    let ratin = parseFloat(req.body.rating)
+    let newRating = (parseFloat(carrier.rating) * len + ratin - parseFloat(rating.rating))/(len)
+    newRating = newRating.toString()
+    ratin = ratin.toString()
     await Carrier.findByIdAndUpdate(rating.carrier_id, { $set: {rating: newRating} }, { new: true })
-    await Rating.findByIdAndUpdate(rating.id, { $set: {rating: req.body.rating} }, { new: true })
-    const rate = Rating.findById(req.params.id)
+    await Rating.findByIdAndUpdate(rating.id, { $set: {rating: ratin }}, { new: true })
+    const rate = await Rating.findById(req.params.id)
     return res.status(201).json(format(rate))
 })
 
