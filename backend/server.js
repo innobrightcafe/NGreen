@@ -6,6 +6,7 @@ const port = process.env.PORT || 3000
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { AuthenticateUser, verifyUser, AuthenticateCarrier, verifyCarrier, verifyAdmin, verifyCarrierUserAndAdmin } = require('./utils/auth.js')
+const { uploadeFile } = require('./utils/image_upload.js')
 const cors = require('cors');
 require('./utils/scheduler.js')
 
@@ -15,7 +16,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.json())
+app.use(express.json({ limit: '10mb' }));
+
 
 connectDB();
 
@@ -33,9 +35,11 @@ app.get('/database', (req, res) => {
     return res.json({ 'status': 'Database is up and running' })
 })
 
+app.use(express.static('uploads'));
+app.post('/upload', verifyCarrier, uploadeFile)
 app.post('/auth/users', AuthenticateUser)
 app.post('/auth/carriers', AuthenticateCarrier)
-app.use('/admins', require('./controllers/admin/admin.js'))
+app.use('/admins', verifyAdmin ,require('./controllers/admin/admin.js'))
 
 app.use('/users', require('./controllers/users/user.js'))
 app.use('/wallets', require('./controllers/wallets/wallet.js'))

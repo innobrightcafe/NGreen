@@ -534,5 +534,26 @@ Authorization: Bearer <user_token>
 }
 ```
 
+## File Uploading
+->To upload file our json must contain three keyword type(license, idcard), data, extension
+POST /uploads
+Request Headers:
+Authorization: Bearer <carrier_token>
+Request:
+```json
+{
+  "type": "license",
+  "data": <encoded file using base64 string>,
+  "extnsion": the file extension e.g jpg
+}
+Response:
+{'status': 'success',
+'path': 'localhost:3000/license_test.jpg'}
+}
+```
+The format for file retrievation is (for license) 'localhost:3000/{type}_{carrier_id}.{extension}'
+The format for file retrievation is (for license) 'localhost:3000/license_{carrier_id}.jpg'
+The format for file retrievation is (for idcard) 'localhost:3000/idcard_{carrier_id}.jpg'
+
 ## Conclusion
 This documentation provides an overview of the NGREEN API endpoints, including how to authenticate users, manage users and carriers, handle transactions, orders, OTPs, and ratings. Each endpoint includes a description, request headers, request, and response examples to help you integrate and use the API effectively.
