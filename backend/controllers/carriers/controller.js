@@ -13,9 +13,15 @@ const createCarrier = expressAsyncHandler(async (req, res) => {
     let agent_id = req.body.agent_id || '';
     if (agent_id) {
         let agent = await User.findById(agent_id)
-        if (!agent) {
+        if(agent){
+            agent.refer += 1;
+            await agent.save();
+        } else  {
             agent = await Carrier.findById(agent_id)
-            if (!agent) {
+            if(agent){
+                agent.refer += 1;
+                await agent.save();
+            } else {
                 agent_id = ''
             }
         }

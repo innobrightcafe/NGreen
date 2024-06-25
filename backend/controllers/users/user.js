@@ -1,5 +1,5 @@
 const router = require('express').Router()
-const { createUser, getUsers, getUser, updateUser } = require('./controller')
+const { createUser, getUsers, getUser, updateUser  } = require('./controller')
 const { AuthenticateUser, verifyUser, AuthenticateCarrier, verifyCarrier, verifyAdmin, verifyCarrierUserAndAdmin }  = require('../../utils/auth')
 const expressAsyncHandler = require('express-async-handler');
 const { body, validationResult } = require('express-validator');
@@ -24,8 +24,9 @@ const handleValidation = expressAsyncHandler(async (req, res, next) => {
   next();
 });
 
-
+// router.route('/test').get(testEmail)
 router.route('/').get(verifyCarrierUserAndAdmin, getUsers).post(validateUser, handleValidation, createUser)
 router.route('/:id').get(verifyCarrierUserAndAdmin, getUser).put(verifyUser, updateUser)
+
 
 module.exports = router

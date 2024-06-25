@@ -1,11 +1,13 @@
 const express = require('express');
 const dotenv = require('dotenv').config();
+const fs = require('fs');
 const app = express();
 const connectDB = require('./utils/db.js')
 const port = process.env.PORT || 3000
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { AuthenticateUser, verifyUser, AuthenticateCarrier, verifyCarrier, verifyAdmin, verifyCarrierUserAndAdmin } = require('./utils/auth.js')
+const { initializePayment, verifyPayment } = require('./utils/paystack.js');
 const { uploadeFile } = require('./utils/image_upload.js')
 const cors = require('cors');
 require('./utils/scheduler.js')
@@ -35,6 +37,81 @@ app.get('/database', (req, res) => {
     return res.json({ 'status': 'Database is up and running' })
 })
 
+
+app.get('/download-log', (req, res) => {
+  const logFilePath = './app.log';
+  
+  // Set the filename that will be suggested to the client
+  const fileName = 'logfile.log';
+  
+  res.download(logFilePath, fileName, (err) => {
+    if (err) {
+      console.error(err);
+      res.status(500).send('Error occurred during the download');
+    }
+  });
+});
+
+app.get('/check-file', (req, res) => {
+    const { type, id } = req.query;
+    
+    const filename = `${req.query.type}_${req.query.id}.${req.query.extension}`;
+    const filePath = './uploads/' + filename;
+    const pat = `${req.get('host')}/${filename}`;
+    
+    // Check if the file exists
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        // File does not exist
+        return res.json({ exists: false });
+      }
+      // File exists
+      return res.json({ exists: true, 'path': pat });
+    });
+  });
+
+  app.get('/download-file', (req, res) => {
+    const { type, id, extension } = req.query;
+    
+    const filename = `${type}_${id}.${extension}`;
+    const filePath = './uploads/' + filename;
+    
+    // Check if the file exists
+    fs.access(filePath, fs.constants.F_OK, (err) => {
+      if (err) {
+        return res.status(404).json({ error: "File does not exist" });
+      }
+      res.download(filePath, filename, (downloadError) => {
+        if (downloadError) {
+          // Handle errors during the download process
+          console.error(downloadError);
+          res.status(500).send("Error occurred during the download");
+        }
+      });
+    });
+  });
+
+//paystack
+app.post('/paystack/pay', async (req, res) => {
+    const { email, amount } = req.body;
+    try {
+      const response = await initializePayment(email, amount);
+      res.status(200).json(response);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+  app.get('/paystack/verify/:reference', async (req, res) => {
+    const { reference } = req.params;
+    try {
+      const response = await verifyPayment(reference);
+      res.status(200).json(response);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
 app.use(express.static('uploads'));
 app.post('/upload', verifyCarrier, uploadeFile)
 app.post('/auth/users', AuthenticateUser)
@@ -58,5 +135,5 @@ app.all('*', (req, res)=> {
 module.exports = app;
 
 app.listen(port, () => {
-    console.log('welcome to NGREEN, YOur ultimate Courier server')
+    console.log('welcome to NGREEN, Your ultimate Courier server')
 })

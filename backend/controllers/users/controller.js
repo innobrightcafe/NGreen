@@ -2,6 +2,7 @@ const expressAsyncHandler = require('express-async-handler');
 const User = require('../.../../../models/userModel.js');
 const { hashPassword, comparePassword } = require('../../utils/password.js')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('../../utils/formatter.js')
+const { sendEmail } = require('../../utils/mailer.js')
 const Wallet = require('../../models/walletModel.js');
 
 const createUser = expressAsyncHandler(async (req, res) => {
@@ -68,5 +69,11 @@ const updateUser = expressAsyncHandler(async (req, res) => {
     return res.status(200).json(format(newUser));
 });
 
+// const testEmail = expressAsyncHandler(async (req, res) => {
+    
+//     await sendEmail();
+//     return res.json({"status": "sent"})
+// })
 
-module.exports = { createUser, getUsers, getUser, updateUser }
+
+module.exports = { createUser, getUsers, getUser, updateUser}
