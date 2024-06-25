@@ -28,7 +28,7 @@ const createOtp = expressAsyncHandler(async (req, res) => {
     if(otpa) {
         return res.status(400).json({"error": "Otp has benn created for this order before"})
     }
-    const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
+    const otp = otpGenerator.generate(6, { lowerCaseAlphabets : false, specialChars: false, upperCaseAlphabets : false });
     const newOtp = await Otp.create({ user_id: user_id, order_id: req.body.order_id, carrier_id: req.body.carrier_id, otp: otp })
     return res.status(201).json(format(newOtp))
 })

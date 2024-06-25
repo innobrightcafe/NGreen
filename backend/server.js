@@ -7,6 +7,7 @@ const port = process.env.PORT || 3000
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const { AuthenticateUser, verifyUser, AuthenticateCarrier, verifyCarrier, verifyAdmin, verifyCarrierUserAndAdmin } = require('./utils/auth.js')
+const { UserToken, CarrierToken } = require('./utils/cache_auth.js');
 const { initializePayment, verifyPayment } = require('./utils/paystack.js');
 const { uploadeFile } = require('./utils/image_upload.js')
 const cors = require('cors');
@@ -114,8 +115,10 @@ app.post('/paystack/pay', async (req, res) => {
 
 app.use(express.static('uploads'));
 app.post('/upload', verifyCarrier, uploadeFile)
-app.post('/auth/users', AuthenticateUser)
-app.post('/auth/carriers', AuthenticateCarrier)
+app.post('/auth/users', UserToken)
+app.post('/auth/carriers', CarrierToken)
+app.post('/auth/users/token', AuthenticateUser)
+app.post('/auth/carriers/token', AuthenticateCarrier)
 app.use('/admins', verifyAdmin ,require('./controllers/admin/admin.js'))
 
 app.use('/users', require('./controllers/users/user.js'))

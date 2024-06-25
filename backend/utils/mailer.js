@@ -1,7 +1,7 @@
 const nodemailer = require("nodemailer");
 require('dotenv').config();
 
-async function sendEmail(to, subject='Testing', text='Hello this is a text mail!') {
+async function sendEmail(to, subject='Testing', text='Hello this is a testing mail!') {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     secure: true,
@@ -20,9 +20,8 @@ async function sendEmail(to, subject='Testing', text='Hello this is a text mail!
   };
 
   try {
-    const emailResponse = await transporter.sendMail(mailOptions);
-    console.log("Email sent successfully!");
-    return emailResponse;
+    await transporter.sendMail(mailOptions);
+    return "success";
   } catch (error) {
     console.error("Error sending email:", error);
     throw error;
@@ -30,14 +29,3 @@ async function sendEmail(to, subject='Testing', text='Hello this is a text mail!
 }
 
 module.exports = { sendEmail };
-
-// Usage example
-// (async () => {
-//   try {
-//     await sendEmail();
-//   } catch (error) {
-//     console.error("Failed to send email:", error);
-//   }
-// })();
-
-

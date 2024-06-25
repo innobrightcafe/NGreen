@@ -4,18 +4,25 @@ const Carrier = require('../models/carrierModel');
 const jwt = require('jsonwebtoken')
 const { hashPassword, comparePassword } = require('./password')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('./formatter.js');
+const { cache } = require('./cache')
+const { sendEmail } = require('./mailer.js')
 
 const AuthenticateUser = expressAsyncHandler(async (req, res) => {
-    if (!req.body.email || !req.body.password) {
-        return res.status(401).json({ "error": "No email or password for authentication" })
+    if(!req.body.otp) {
+        return res.status(401).json({ "error": "No OTP provided" })
     }
-    let user = await User.findOne({ email: req.body.email })
+    let value = cache.get(req.body.otp)
+    if (!value) {
+        return res.status(401).json({ "error": "OTP expired or incorrect otp" })
+    }
+    value = JSON.parse(value)
+    cache.del(req.body.otp)
+    let user = await User.findOne({ email: value.email })
     if (!user) {
         return res.status(401).json({ "error": "No such email" })
     }
     user = format(user)
-    const compare = await comparePassword(user.password, req.body.password)
-    if (!compare) {
+    if (user.password != value.password) {
         return res.status(401).json({ "error": "Incorrect pasword" })
     }
     jwt.sign({ user }, process.env.SECRET_KEY, (error, token) => {
@@ -30,16 +37,21 @@ const AuthenticateUser = expressAsyncHandler(async (req, res) => {
 })
 
 const AuthenticateCarrier = expressAsyncHandler(async (req, res) => {
-    if (!req.body.email || !req.body.password) {
-        return res.status(401).json({ "error": "No email or password for authentication" })
+    if(!req.body.otp) {
+        return res.status(401).json({ "error": "No OTP provided" })
     }
-    let carrier = await Carrier.findOne({ email: req.body.email })
+    let value = cache.get(req.body.otp)
+    if (!value) {
+        return res.status(401).json({ "error": "OTP expired or incorrect otp" })
+    }
+    value = JSON.parse(value)
+    cache.del(req.body.otp)
+    let carrier = await Carrier.findOne({ email: value.email })
     if (!carrier) {
         return res.status(401).json({ "error": "No such email" })
     }
     carrier = format(carrier)
-    const compare = await comparePassword(carrier.password, req.body.password)
-    if (!compare) {
+    if (carrier.password != value.password) {
         return res.status(401).json({ "error": "Incorrect password" })
     }
     jwt.sign({ carrier }, process.env.SECRET_KEY, (error, token) => {
