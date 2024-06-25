@@ -10,6 +10,7 @@ const { AuthenticateUser, verifyUser, AuthenticateCarrier, verifyCarrier, verify
 const { UserToken, CarrierToken } = require('./utils/cache_auth.js');
 const { initializePayment, verifyPayment } = require('./utils/paystack.js');
 const { uploadeFile } = require('./utils/image_upload.js')
+const { sendEmail } = require('./utils/mailer.js')
 const cors = require('cors');
 require('./utils/scheduler.js')
 
@@ -99,7 +100,7 @@ app.post('/paystack/pay', async (req, res) => {
       const response = await initializePayment(email, amount);
       res.status(200).json(response);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   });
   
@@ -107,9 +108,9 @@ app.post('/paystack/pay', async (req, res) => {
     const { reference } = req.params;
     try {
       const response = await verifyPayment(reference);
-      res.status(200).json(response);
+      return res.status(200).json(response);
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      return res.status(500).json({ error: error.message });
     }
   });
 
@@ -119,6 +120,18 @@ app.post('/auth/users', UserToken)
 app.post('/auth/carriers', CarrierToken)
 app.post('/auth/users/token', AuthenticateUser)
 app.post('/auth/carriers/token', AuthenticateCarrier)
+app.post('/sendmail', verifyCarrierUserAndAdmin, async (req, res) => {
+  if (!req.body.email  || !req.body.head || !req.body.message) {
+    return res.status(400).json({ error: "Invalid request: email, head or message not in request body" });
+  }
+    const email  = req.body.email.trim();
+    try {
+        await sendEmail(email, req.body.head, req.body.message);
+        return res.status(200).json({"message": "Email sent successfully"});
+    } catch (error) {
+        return res.status(500).json({ error: error.message });
+    }
+})
 app.use('/admins', verifyAdmin ,require('./controllers/admin/admin.js'))
 
 app.use('/users', require('./controllers/users/user.js'))

@@ -10,6 +10,8 @@ The base URL for all API endpoints is: http://127.0.0.1:3000/
 
 ## Authentication
 
+NOTE: otp will expire after 10 minutes and it is use once only
+
 ### Admin Authentication
 
 POST /auth/users
@@ -18,6 +20,18 @@ Request:
 {
   "email": "testuser@ngreen.usr",
   "password": "tester123"
+}
+Response:
+{
+   "message": "OTP sent to your email" 
+}
+```
+
+POST /auth/users/token
+Request:
+```json
+{
+  "otp": <otp>
 }
 Response:
 {
@@ -31,11 +45,21 @@ Response:
 ### User Authentication
 POST /auth/users
 Request:
-
 ```json
 {
   "email": "<user_email>",
   "password": "<user_password>"
+}
+Response:
+{
+   "message": "OTP sent to your email" 
+}
+
+POST /auth/users/token
+Request:
+```json
+{
+  "otp": <otp>
 }
 Response:
 {
@@ -54,7 +78,17 @@ Request:
   "password": "<carrier_password>"
 }
 Response:
+{
+   "message": "OTP sent to your email" 
+}
 
+POST /auth/carriers/token
+Request:
+```json
+{
+  "otp": <otp>
+}
+Response:
 {
   "carrier": {
     "id": "<carrier_id>"
@@ -544,16 +578,61 @@ Request:
 {
   "type": "license",
   "data": <encoded file using base64 string>,
-  "extnsion": the file extension e.g jpg
+  "extension": the file extension e.g jpg
 }
 Response:
-{'status': 'success',
-'path': 'localhost:3000/license_test.jpg'}
+{
+  'status': 'success',
+  'path': 'localhost:3000/license_test.jpg'
 }
 ```
-The format for file retrievation is (for license) 'localhost:3000/{type}_{carrier_id}.{extension}'
+
+The format for file retrievation is 'localhost:3000/{type}_{carrier_id}.{extension}'
 The format for file retrievation is (for license) 'localhost:3000/license_{carrier_id}.jpg'
 The format for file retrievation is (for idcard) 'localhost:3000/idcard_{carrier_id}.jpg'
+
+->Download log
+GET /download-log
+Download prompt will pop up
+
+
+->Check if a file is present on the server
+GET /check-file?type=x&id=y&extension=z
+where x, y, and z are values
+```Response:
+{
+  'exists': true,
+  'path': 'localhost:3000/license_test.jpg'
+}
+```
+
+->Download a particular file from the server
+GET /download-file?type=x&id=y&extension=z
+where x, y, and z are values
+```Response:
+{
+  'exists': true,
+  'path': 'localhost:3000/license_test.jpg'
+}
+```
+
+### SENDING EMAIL
+
+POST /sendmail
+Request Headers:
+Authorization: Bearer <token>
+Request:
+```json
+{
+  "email": <email to sent to>,
+  "head": <subject>,
+  "message": <message>
+}
+Response:
+{
+  "message": "Email sent successfully"
+  }
+```
 
 ## Conclusion
 This documentation provides an overview of the NGREEN API endpoints, including how to authenticate users, manage users and carriers, handle transactions, orders, OTPs, and ratings. Each endpoint includes a description, request headers, request, and response examples to help you integrate and use the API effectively.
