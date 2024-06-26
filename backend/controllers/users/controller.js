@@ -18,7 +18,7 @@ const createUser = expressAsyncHandler(async (req, res) => {
     const number = Math.floor(Math.random() * 1000000000);
     const balance = 0.0;
     const wallet = await Wallet.create({ user_id, number, balance });
-    newUser.wallet_number = format(wallet).number;
+    newUser.wallet_number = wallet.number;
     return res.status(201).json(newUser);
 });
 
