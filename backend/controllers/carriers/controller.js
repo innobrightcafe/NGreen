@@ -13,12 +13,12 @@ const createCarrier = expressAsyncHandler(async (req, res) => {
     let agent_id = req.body.agent_id || '';
     if (agent_id) {
         let agent = await User.findById(agent_id)
-        if(agent){
+        if (agent) {
             agent.refer += 1;
             await agent.save();
-        } else  {
+        } else {
             agent = await Carrier.findById(agent_id)
-            if(agent){
+            if (agent) {
                 agent.refer += 1;
                 await agent.save();
             } else {
@@ -112,6 +112,25 @@ const approveCarrier = expressAsyncHandler(async (req, res) => {
     if (!carrier) {
         return res.status(404).json({ "error": "Carrier not found" });
     }
+    if (!carrier.account_bank || !carrier.account_name || !carrier.account_number || !carrier.active || !carrier.pnumber) {
+        return res.status(400).json({ "error": "The user need to update all his details before approval" })
+    }
+    const carrier_id = req.params.id
+    const directoryPath = '../../uploads'
+    const filename1 = `license_${carrier_id}`;
+    const filename2 = `idcard_${carrier_id}`;
+    fs.readdir(directoryPath, (err, files) => {
+        if (err) {
+            console.error('Error reading directory:', err);
+            return res.status(400).json({'error': 'ERROR! Occur'})
+        }
+        const fileExist1 = files.some(file => path.parse(file).name === filename1);
+        const fileExist2 = files.some(file => path.parse(file).name === filename2);
+
+        if (!fileExist1 && !fileExist2) {
+            return res.status(400).json({ "error": "The user need to update all his details before approval" })       
+        }
+    });
     const updatedItems = {};
     updatedItems.approved = true
     await Carrier.findByIdAndUpdate(req.params.id, { $set: updatedItems }, { new: true })
