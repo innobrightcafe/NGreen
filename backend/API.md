@@ -8,6 +8,18 @@ This document provides a comprehensive guide to using the NGREEN API. The API al
 
 The base URL for all API endpoints is: http://127.0.0.1:3000/
 
+## Google AUTH
+NB: Only user and Carrier can sign up with google not admin
+The login will return a token normally as normal authentication does
+
+### USER
+sign up-> GET /auth/user/google
+login-> GET /user/login/google
+
+### CARRIER
+sign up-> GET /auth/carrier/google
+login-> GET /carrier/login/google
+
 ## Authentication
 
 NOTE: otp will expire after 10 minutes and it is use once only
