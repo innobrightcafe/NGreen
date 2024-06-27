@@ -51,7 +51,7 @@ const getCarriers = expressAsyncHandler(async (req, res) => {
     } else {
         carriers = await Carrier.find({});
     }
-    value = []
+    const value = []
     for (let carrier of carriers) {
         value.push(format(carrier))
     }
