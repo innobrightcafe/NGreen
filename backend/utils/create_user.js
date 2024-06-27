@@ -22,7 +22,7 @@ const createAuthUser = async (req) => {
 }
 
 const createAuthCarrier = async (req) => {
-    const exist = await carrier.findOne({ email: req.email })
+    const exist = await Carrier.findOne({ email: req.email })
     if (exist) {
         return 0;
     }

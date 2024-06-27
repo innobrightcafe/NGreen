@@ -32,6 +32,9 @@ const AuthenticateUser = expressAsyncHandler(async (req, res) => {
         if (!user) {
             return res.status(401).json({ "error": "This Email has not been sign up with google" })
         }
+        if (user.password) {
+            return res.status(401).json({ "error": "This Email has not been sign up with google, Probably you did manual sign up" })
+        }
         cache.del('google')
     }
     jwt.sign({ user }, process.env.SECRET_KEY, (error, token) => {
@@ -69,6 +72,9 @@ const AuthenticateCarrier = expressAsyncHandler(async (req, res) => {
         carrier = await Carrier.findOne({ email: req.query.email })
         if (!carrier) {
             return res.status(401).json({ "error": "This Email has not been sign up with google" })
+        }
+        if (carrier.password) {
+            return res.status(401).json({ "error": "This Email has not been sign up with google, Probably you did manual sign up" })
         }
         cache.del('google')
     }

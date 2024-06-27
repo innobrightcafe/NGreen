@@ -21,6 +21,8 @@ const { cache } = require('./utils/cache.js')
 
 const userSession1 = createSession('type', 'user', 'purpose', 'signup');
 const userSession2 = createSession('type', 'user', 'purpose', 'login');
+const carrierSession1 = createSession('type', 'carrier', 'purpose', 'signup');
+const carrierSession2 = createSession('type', 'carrier', 'purpose', 'login');
 
 
 const corsOptions = {
@@ -59,13 +61,13 @@ app.get('/database', (req, res) => {
 app.get('/auth/user/google', userSession1,
   passport.authenticate('google', { scope: ['email', 'profile'] }
 ));
-app.get('/auth/carrier/google', userSession1,
+app.get('/auth/carrier/google', carrierSession1,
   passport.authenticate('google', { scope: ['email', 'profile'] }
 ));
 app.get('/user/login/google', userSession2,
   passport.authenticate('google', { scope: ['email', 'profile'] }
 ));
-app.get('/carrier/login/google', userSession2,
+app.get('/carrier/login/google', carrierSession2,
   passport.authenticate('google', { scope: ['email', 'profile'] }
 ));
 

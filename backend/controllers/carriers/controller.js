@@ -4,6 +4,7 @@ const User = require('../../models/userModel.js')
 const { hashPassword, comparePassword } = require('../../utils/password.js')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('../../utils/formatter.js')
 const Wallet = require('../../models/walletModel.js');
+const path = require('path');
 
 const createCarrier = expressAsyncHandler(async (req, res) => {
     const exist = await Carrier.findOne({ email: req.body.email })
