@@ -95,19 +95,19 @@ export const dashbordCardData = [
 
 export const menuData = [
     { name: "Dashboard", href: "/dashboard" },
-    { name: "Orders", href: "/orders" },
-    { name: "Carriers", href: "/carriers" },
-    { name: "Customers", href: "/customers" },
-    { name: "Reports", href: "/reports" },
-    { name: "Referral Program", href: "/referrerprogram" },
-    { name: "Delivery Activities", href: "/delivery_activities" }, 
+    { name: "Orders", href: "/dashboard/orders" },
+    { name: "Carriers", href: "/dashboard/carriers" },
+    { name: "Customers", href: "/dashboard/customers" },
+    { name: "Reports", href: "/dashboard/reports" },
+    { name: "Referral Program", href: "/dashboard/referrerprogram" },
+    { name: "Delivery Activities", href: "/dashboard/delivery_activities" }, 
   ];
 
   export const profileMenuData= [
-    { name: "Account", href: "/account" },
-    { name: "Settings", href: "/settings" },
-    { name: "Support", href: "/support" },
-    { name: "Profile", href: "/profile" }, 
+    { name: "Account", href: "/dashboard/account" },
+    { name: "Settings", href: "/dashboard/settings" },
+    { name: "Support", href: "/dashboard/support" },
+    { name: "Profile", href: "/dashboard/profile" }, 
   ];
 
   export const driverTableData = [

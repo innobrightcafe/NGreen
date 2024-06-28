@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
@@ -7,9 +8,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"; 
+} from "@/components/ui/dropdown-menu";
 import { useEffect, useState } from "react";
-import { LogOutIcon, UsersIcon } from "../icons";
+import { LogOutIcon } from "../icons";
+import { useRouter } from "next/navigation";
+import { UserCircle } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface UserData {
   name: string;
@@ -30,8 +34,12 @@ interface ProfileMenuProps {
   profileMenuData: ProfileMenuItem[];
 }
 
-export const ProfileMenu = ({ userData, profileMenuData }: ProfileMenuProps) => {
+export const ProfileMenu = ({
+  userData,
+  profileMenuData,
+}: ProfileMenuProps) => {
   const [isImageError, setImageError] = useState(false);
+  const router = useRouter();
 
   const handleImageError = () => {
     setImageError(true);
@@ -41,24 +49,21 @@ export const ProfileMenu = ({ userData, profileMenuData }: ProfileMenuProps) => 
     setImageError(false); // Reset error state on avatarUrl change
   }, [userData.avatarUrl]);
 
+  const handleLogout = () => {
+    // Remove the token from local storage
+    localStorage.removeItem("token");
+    // Redirect to the login page
+    router.push("/");
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          {isImageError ? (
-            <UsersIcon className="h-8 w-8" /> // Use a fallback icon
-          ) : (
-            <img
-              src={userData.avatarUrl}
-              onError={handleImageError}
-              width="32"
-              height="32"
-              className="rounded-full"
-              alt="Avatar"
-            />
-          )}
-          <span className="sr-only">Toggle user menu</span>
-        </Button>
+         
+        <Avatar>
+          <AvatarImage src={userData.avatarUrl} alt="User avatar" />
+          <AvatarFallback className="bg-transparent hover:bg-[#7F1945]/50 hover:text-[#FFF]" > <UserCircle /> </AvatarFallback>
+        </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
@@ -78,11 +83,9 @@ export const ProfileMenu = ({ userData, profileMenuData }: ProfileMenuProps) => 
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <Link href="#" className="flex items-center gap-2" prefetch={false}>
-            <LogOutIcon className="h-4 w-4" />
-            Logout
-          </Link>
+        <DropdownMenuItem onClick={handleLogout}>
+          <LogOutIcon className="h-4 w-4" />
+          Logout
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

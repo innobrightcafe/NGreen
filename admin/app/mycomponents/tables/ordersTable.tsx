@@ -1,5 +1,6 @@
-import React from "react";
-import '@/app/globals.css';
+// DeleteCancelTable.tsx
+import React, { useState } from "react";
+import "@/app/globals.css";
 import {
   Table,
   TableHeader,
@@ -16,7 +17,6 @@ import {
   CardContent,
   CardFooter,
 } from "@/components/ui/card";
-import { DeleteIcon, TrashIcon } from "lucide-react";
 import Link from "next/link";
 
 interface Order {
@@ -25,13 +25,20 @@ interface Order {
   driver: string;
   status: string;
   total: number;
+  date: string;
 }
 
 interface DeleteCancelTableProps {
   data: Order[];
 }
 
-export const DeleteCancelTable: React.FC<DeleteCancelTableProps> = ({ data }) => {
+export const DeleteCancelTable: React.FC<DeleteCancelTableProps> = ({
+  data,
+}) => {
+  const [displayedItems, setDisplayedItems] = useState<Order[]>(
+    data.slice(0, 3)
+  );
+
   return (
     <div>
       <Card className="bg-[#FFBE58]/20 hover:bg-[#FFBE58]/50">
@@ -44,40 +51,31 @@ export const DeleteCancelTable: React.FC<DeleteCancelTableProps> = ({ data }) =>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Order</TableHead>
+                <TableHead>Order#</TableHead>
                 <TableHead>Customer</TableHead>
-                <TableHead>Driver</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Total</TableHead>
-                <TableHead>Actions</TableHead>
+                <TableHead>Carrier</TableHead>
+                <TableHead>Delivery Status</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Date</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {data.map((order, index) => (
+              {displayedItems.map((order, index) => (
                 <TableRow key={index}>
                   <TableCell>{order.order}</TableCell>
                   <TableCell>{order.customer}</TableCell>
                   <TableCell>{order.driver}</TableCell>
                   <TableCell>{order.status}</TableCell>
-                  <TableCell>{order.total}</TableCell>
-                  <TableCell>
-                    <Button variant="outline" size="icon">
-                      <DeleteIcon className="h-4 w-4" />
-                      <span className="sr-only">Edit</span>
-                    </Button>
-                    <Button variant="outline" size="icon">
-                      <TrashIcon className="h-4 w-4" />
-                      <span className="sr-only">Delete</span>
-                    </Button>
-                  </TableCell>
+                  <TableCell>{`₦${order.total.toFixed(2)}`}</TableCell> 
+                  <TableCell>{order.date.slice(0, 10)}</TableCell> 
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <div className="mt-4 justify-content-center">
-            <CardFooter className="flex">
-              <Link href={"/orders"} className="mx-auto" prefetch={false}>
-                <Button variant="outline" size="sm">
+          <div className="mt-4 justify-content-center text-center mx-auto">
+            <CardFooter className="flex mx-auto">
+              <Link href="dashboard/orders" className="mx-auto">
+                <Button variant="outline" size="sm" className=" iterm-center">
                   View All
                 </Button>
               </Link>
