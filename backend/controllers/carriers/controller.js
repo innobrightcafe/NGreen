@@ -4,6 +4,7 @@ const User = require('../../models/userModel.js')
 const { hashPassword, comparePassword } = require('../../utils/password.js')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('../../utils/formatter.js')
 const Wallet = require('../../models/walletModel.js');
+const path = require('path');
 
 const createCarrier = expressAsyncHandler(async (req, res) => {
     const exist = await Carrier.findOne({ email: req.body.email })
@@ -13,9 +14,15 @@ const createCarrier = expressAsyncHandler(async (req, res) => {
     let agent_id = req.body.agent_id || '';
     if (agent_id) {
         let agent = await User.findById(agent_id)
-        if (!agent) {
+        if (agent) {
+            agent.refer += 1;
+            await agent.save();
+        } else {
             agent = await Carrier.findById(agent_id)
-            if (!agent) {
+            if (agent) {
+                agent.refer += 1;
+                await agent.save();
+            } else {
                 agent_id = ''
             }
         }
@@ -31,7 +38,7 @@ const createCarrier = expressAsyncHandler(async (req, res) => {
     const number = Math.floor(Math.random() * 1000000000);
     const balance = 0.0;
     const wallet = await Wallet.create({ user_id, number, balance });
-    newCarrier.wallet_number = format(wallet).number;
+    newCarrier.wallet_number = wallet.number;
     return res.status(201).json(newCarrier);
 });
 
@@ -44,7 +51,7 @@ const getCarriers = expressAsyncHandler(async (req, res) => {
     } else {
         carriers = await Carrier.find({});
     }
-    value = []
+    const value = []
     for (let carrier of carriers) {
         value.push(format(carrier))
     }
@@ -106,6 +113,25 @@ const approveCarrier = expressAsyncHandler(async (req, res) => {
     if (!carrier) {
         return res.status(404).json({ "error": "Carrier not found" });
     }
+    if (!carrier.account_bank || !carrier.account_name || !carrier.account_number || !carrier.active || !carrier.pnumber) {
+        return res.status(400).json({ "error": "The user need to update all his details before approval" })
+    }
+    const carrier_id = req.params.id
+    const directoryPath = '../../uploads'
+    const filename1 = `license_${carrier_id}`;
+    const filename2 = `idcard_${carrier_id}`;
+    fs.readdir(directoryPath, (err, files) => {
+        if (err) {
+            console.error('Error reading directory:', err);
+            return res.status(400).json({'error': 'ERROR! Occur'})
+        }
+        const fileExist1 = files.some(file => path.parse(file).name === filename1);
+        const fileExist2 = files.some(file => path.parse(file).name === filename2);
+
+        if (!fileExist1 && !fileExist2) {
+            return res.status(400).json({ "error": "The user need to update all his details before approval" })       
+        }
+    });
     const updatedItems = {};
     updatedItems.approved = true
     await Carrier.findByIdAndUpdate(req.params.id, { $set: updatedItems }, { new: true })

@@ -25,6 +25,8 @@ node - v18.1.0
    MONGO_URI = 
    SECRET_KEY =
    ADMiN_ID=
+   EMAIL=
+   EMAIL_SECRET=
    ```
 
 ## Running the Server

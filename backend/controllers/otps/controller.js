@@ -6,6 +6,7 @@ const Otp = require('../../models/otpModel.js')
 const Order = require('../../models/orderModel.js')
 const { sharer } = require('../../utils/shareformula.js')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('../../utils/formatter.js')
+const { sendEmail } = require('../../utils/mailer.js')
 
 
 const createOtp = expressAsyncHandler(async (req, res) => {
@@ -19,7 +20,7 @@ const createOtp = expressAsyncHandler(async (req, res) => {
     if (!order.id) {
         return res.status(400).json({ "error": " Order not found" })
     }
-    console.log(order.status)
+
     if (order.status != "inprogress" && !order.carrier) {
         return res.status(400).json({ "error": "Order is not in progress" })
     }
@@ -28,7 +29,8 @@ const createOtp = expressAsyncHandler(async (req, res) => {
     if(otpa) {
         return res.status(400).json({"error": "Otp has benn created for this order before"})
     }
-    const otp = otpGenerator.generate(6, { upperCase: false, specialChars: false, alphabets: false });
+    const otp = otpGenerator.generate(6, { lowerCaseAlphabets : false, specialChars: false, upperCaseAlphabets : false });
+    await sendEmail(user.email, 'OTP', `Your OTP is ${otp}`)
     const newOtp = await Otp.create({ user_id: user_id, order_id: req.body.order_id, carrier_id: req.body.carrier_id, otp: otp })
     return res.status(201).json(format(newOtp))
 })

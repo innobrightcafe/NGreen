@@ -4,19 +4,38 @@ const Carrier = require('../models/carrierModel');
 const jwt = require('jsonwebtoken')
 const { hashPassword, comparePassword } = require('./password')
 const { processMongoDBObject: format, reverseProcessMongoDBObject: reformat } = require('./formatter.js');
+const { cache } = require('./cache')
+const { sendEmail } = require('./mailer.js')
 
 const AuthenticateUser = expressAsyncHandler(async (req, res) => {
-    if (!req.body.email || !req.body.password) {
-        return res.status(401).json({ "error": "No email or password for authentication" })
+    if (!cache.get('google') && !req.body.otp) {
+        return res.status(401).json({ "error": "No OTP provided" })
     }
-    let user = await User.findOne({ email: req.body.email })
-    if (!user) {
-        return res.status(401).json({ "error": "No such email" })
-    }
-    user = format(user)
-    const compare = await comparePassword(user.password, req.body.password)
-    if (!compare) {
-        return res.status(401).json({ "error": "Incorrect pasword" })
+    let user = ''
+    if (req.body.otp) {
+        let value = cache.get(req.body.otp)
+        if (!value) {
+            return res.status(401).json({ "error": "OTP expired or incorrect otp" })
+        }
+        value = JSON.parse(value)
+        cache.del(req.body.otp)
+        user = await User.findOne({ email: value.email })
+        if (!user) {
+            return res.status(401).json({ "error": "No such email" })
+        }
+        user = format(user)
+        if (user.password != value.password) {
+            return res.status(401).json({ "error": "Incorrect pasword" })
+        }
+    } else if (cache.get('google')) {
+        user = await User.findOne({ email: req.query.email })
+        if (!user) {
+            return res.status(401).json({ "error": "This Email has not been sign up with google" })
+        }
+        if (user.password) {
+            return res.status(401).json({ "error": "This Email has not been sign up with google, Probably you did manual sign up" })
+        }
+        cache.del('google')
     }
     jwt.sign({ user }, process.env.SECRET_KEY, (error, token) => {
         if (error) {
@@ -30,17 +49,34 @@ const AuthenticateUser = expressAsyncHandler(async (req, res) => {
 })
 
 const AuthenticateCarrier = expressAsyncHandler(async (req, res) => {
-    if (!req.body.email || !req.body.password) {
-        return res.status(401).json({ "error": "No email or password for authentication" })
+    if (!cache.get('google') && !req.body.otp) {
+        return res.status(401).json({ "error": "No OTP provided" })
     }
-    let carrier = await Carrier.findOne({ email: req.body.email })
-    if (!carrier) {
-        return res.status(401).json({ "error": "No such email" })
-    }
-    carrier = format(carrier)
-    const compare = await comparePassword(carrier.password, req.body.password)
-    if (!compare) {
-        return res.status(401).json({ "error": "Incorrect password" })
+    let carrier = ''
+    if (req.body.otp) {
+        let value = cache.get(req.body.otp)
+        if (!value) {
+            return res.status(401).json({ "error": "OTP expired or incorrect otp" })
+        }
+        value = JSON.parse(value)
+        cache.del(req.body.otp)
+        let carrier = await Carrier.findOne({ email: value.email })
+        if (!carrier) {
+            return res.status(401).json({ "error": "No such email" })
+        }
+        carrier = format(carrier)
+        if (carrier.password != value.password) {
+            return res.status(401).json({ "error": "Incorrect password" })
+        }
+    } else if (cache.get('google')) {
+        carrier = await Carrier.findOne({ email: req.query.email })
+        if (!carrier) {
+            return res.status(401).json({ "error": "This Email has not been sign up with google" })
+        }
+        if (carrier.password) {
+            return res.status(401).json({ "error": "This Email has not been sign up with google, Probably you did manual sign up" })
+        }
+        cache.del('google')
     }
     jwt.sign({ carrier }, process.env.SECRET_KEY, (error, token) => {
         if (error) {
